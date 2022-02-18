@@ -54,6 +54,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             builder.Services.Configure(configure);
 
+            AddCore(builder);
+
             builder.Services.TryAddEnumerable(
                 ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
             return builder;
@@ -75,9 +77,18 @@ namespace Microsoft.Extensions.DependencyInjection
 
             builder.Services.Configure(configure);
 
+            AddCore(builder);
+
             builder.Services.TryAddEnumerable(
                 ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
             return builder;
+        }
+
+        private static void AddCore(IMvcBuilder builder)
+        {
+            Guard.NotNull(builder, nameof(builder));
+
+            builder.Services.TryAddTransient<ISerializer, Serializer>();
         }
     }
 }

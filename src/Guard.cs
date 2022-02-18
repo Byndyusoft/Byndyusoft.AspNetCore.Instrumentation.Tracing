@@ -10,5 +10,15 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 throw new ArgumentNullException(paramName);
             return value;
         }
+
+        public static int? NotNegative(int? value, string paramName)
+        {
+            return value switch
+            {
+                null => value,
+                <= 0 => throw new ArgumentOutOfRangeException(paramName),
+                _ => value
+            };
+        }
     }
 }

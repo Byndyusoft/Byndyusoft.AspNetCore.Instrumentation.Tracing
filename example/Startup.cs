@@ -26,13 +26,17 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
         {
             services.AddMvc();
 
-            services.AddControllers().AddTracing();
+            services.AddControllers()
+                .AddTracing(options =>
+            {
+                options.ValueMaxStringLength = 500;
+            });
 
             services.AddSingleton<IService, Service>();
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "My API", Version = "v1"});
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -50,7 +54,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                             options.Filter = context => context.Request.Path.StartsWithSegments("/swagger") == false;
                         })
                     .AddConsoleExporter()
-                    .AddJaegerExporter(options => { Configuration.GetSection("Jaeger").Bind(options); });
+                    .AddJaegerExporter(jaeger => { Configuration.GetSection("Jaeger").Bind(jaeger); });
             });
         }
 
@@ -62,7 +66,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
             app.UseSwagger();
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
             app.UseRouting();
-
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }

@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -11,15 +11,28 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
     {
         private static readonly object None = new();
         private readonly AspNetMvcResponseTracingOptions _options;
+        private readonly ISerializer _serializer;
 
-        public ResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options)
+        public ResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options, ISerializer serializer)
         {
+            Guard.NotNull(options, nameof(options));
+            Guard.NotNull(serializer, nameof(serializer));
+
+            _serializer = serializer;
             _options = options.Value;
+        }
+
+        public Task OnResultExecutionAsync(
+            ResultExecutingContext context,
+            ResultExecutionDelegate next)
+        {
+            return OnResultExecutionAsync(context, next, context.HttpContext.RequestAborted);
         }
 
         public async Task OnResultExecutionAsync(
             ResultExecutingContext context,
-            ResultExecutionDelegate next)
+            ResultExecutionDelegate next,
+            CancellationToken cancellationToken)
         {
             await next();
 
@@ -33,7 +46,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             };
 
             if (TryGetBody(context.Result, out var body))
-                tags.Add("http.response.body", JsonSerializer.Serialize(body, _options.JsonSerializerOptions));
+            {
+                var json = await _serializer.SerializeResponseBodyAsync(body, _options, cancellationToken)
+                    .ConfigureAwait(false);
+                tags.Add("http.response.body", json);
+            }
 
             var evnt = new ActivityEvent("Action executed", tags: tags);
             Activity.Current.AddEvent(evnt);

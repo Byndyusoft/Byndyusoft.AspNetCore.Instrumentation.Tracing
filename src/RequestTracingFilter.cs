@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -11,15 +11,21 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
     public class RequestTracingFilter : IAsyncActionFilter
     {
         private readonly AspNetMvcRequestTracingOptions _options;
+        private readonly ISerializer _serializer;
 
-        public RequestTracingFilter(IOptions<AspNetMvcRequestTracingOptions> options)
+        public RequestTracingFilter(IOptions<AspNetMvcRequestTracingOptions> options, ISerializer serializer)
         {
+            Guard.NotNull(options, nameof(options));
+            Guard.NotNull(serializer, nameof(serializer));
+
+            _serializer = serializer;
             _options = options.Value;
         }
 
         public async Task OnActionExecutionAsync(
             ActionExecutingContext context,
-            ActionExecutionDelegate next)
+            ActionExecutionDelegate next,
+            CancellationToken cancellationToken)
         {
             var activity = Activity.Current;
             if (activity != null)
@@ -32,14 +38,26 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 };
 
                 foreach ((string name, var value) in GetParameters(context))
-                    tags.Add($"http.request.params.{name}",
-                        JsonSerializer.Serialize(value, _options.JsonSerializerOptions));
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var json = await _serializer.SerializeRequestParamAsync(value, _options, cancellationToken)
+                        .ConfigureAwait(false);
+                    tags.Add($"http.request.params.{name}", json);
+                }
 
                 var evnt = new ActivityEvent("Action executing", tags: tags);
                 activity.AddEvent(evnt);
             }
 
             await next();
+        }
+
+        public Task OnActionExecutionAsync(
+            ActionExecutingContext context,
+            ActionExecutionDelegate next)
+        {
+            return OnActionExecutionAsync(context, next, context.HttpContext.RequestAborted);
         }
 
         private static IEnumerable<(string name, object? value)> GetParameters(ActionExecutingContext context)
