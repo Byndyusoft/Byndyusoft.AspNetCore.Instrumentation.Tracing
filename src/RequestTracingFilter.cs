@@ -22,7 +22,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             _options = options.Value;
         }
 
-        public async Task OnActionExecutionAsync(
+        public Task OnActionExecutionAsync(
+            ActionExecutingContext context,
+            ActionExecutionDelegate next)
+        {
+            return OnActionExecutionAsync(context, next, context.HttpContext.RequestAborted);
+        }
+
+        private async Task OnActionExecutionAsync(
             ActionExecutingContext context,
             ActionExecutionDelegate next,
             CancellationToken cancellationToken)
@@ -51,13 +58,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             }
 
             await next();
-        }
-
-        public Task OnActionExecutionAsync(
-            ActionExecutingContext context,
-            ActionExecutionDelegate next)
-        {
-            return OnActionExecutionAsync(context, next, context.HttpContext.RequestAborted);
         }
 
         private static IEnumerable<(string name, object? value)> GetParameters(ActionExecutingContext context)

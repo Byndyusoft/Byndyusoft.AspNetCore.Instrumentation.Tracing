@@ -1,16 +1,15 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
     internal class StringLimitStream : Stream
     {
+        private readonly int? _lengthLimit;
         private MemoryStream? _memory;
         private bool _oversized;
-        private int? _lengthLimit;
 
         public StringLimitStream(int? lengthLimit)
         {
@@ -18,13 +17,50 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             _memory = new MemoryStream();
         }
 
-        public override void Flush() => Inner.Flush();
+        [ExcludeFromCodeCoverage]
+        public override bool CanRead => Inner.CanRead;
 
-        public override int Read(byte[] buffer, int offset, int count) => Inner.Read(buffer, offset, count);
+        [ExcludeFromCodeCoverage]
+        public override bool CanSeek => Inner.CanSeek;
 
-        public override long Seek(long offset, SeekOrigin origin) => Inner.Seek(offset, origin);
+        [ExcludeFromCodeCoverage]
+        public override bool CanWrite => Inner.CanWrite;
 
-        public override void SetLength(long value) => Inner.SetLength(value);
+        [ExcludeFromCodeCoverage]
+        public override long Length => Inner.Length;
+
+        [ExcludeFromCodeCoverage]
+        public override long Position
+        {
+            get => Inner.Position;
+            set => Inner.Position = value;
+        }
+
+        private MemoryStream Inner => _memory ?? throw new ObjectDisposedException(nameof(StringLimitStream));
+
+        [ExcludeFromCodeCoverage]
+        public override void Flush()
+        {
+            Inner.Flush();
+        }
+
+        [ExcludeFromCodeCoverage]
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            return Inner.Read(buffer, offset, count);
+        }
+
+        [ExcludeFromCodeCoverage]
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            return Inner.Seek(offset, origin);
+        }
+
+        [ExcludeFromCodeCoverage]
+        public override void SetLength(long value)
+        {
+            Inner.SetLength(value);
+        }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
@@ -33,23 +69,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             if (_lengthLimit != null && inner.Length + count > _lengthLimit)
             {
                 _oversized = true;
-                count = _lengthLimit.Value - (int)inner.Length;
+                count = _lengthLimit.Value - (int) inner.Length;
             }
 
             Inner.Write(buffer, offset, count);
         }
-
-        public override bool CanRead => Inner.CanRead;
-        public override bool CanSeek => Inner.CanSeek;
-        public override bool CanWrite => Inner.CanWrite;
-        public override long Length => Inner.Length;
-        public override long Position
-        {
-            get => Inner.Position;
-            set => Inner.Position = value;
-        }
-
-        private MemoryStream Inner => _memory ?? throw new ObjectDisposedException(nameof(StringLimitStream));
 
         protected override void Dispose(bool disposing)
         {

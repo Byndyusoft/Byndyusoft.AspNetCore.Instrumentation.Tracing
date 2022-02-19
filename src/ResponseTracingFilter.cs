@@ -29,7 +29,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             return OnResultExecutionAsync(context, next, context.HttpContext.RequestAborted);
         }
 
-        public async Task OnResultExecutionAsync(
+        private async Task OnResultExecutionAsync(
             ResultExecutingContext context,
             ResultExecutionDelegate next,
             CancellationToken cancellationToken)

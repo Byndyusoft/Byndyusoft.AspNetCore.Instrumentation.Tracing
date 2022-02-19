@@ -42,7 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(builder, nameof(builder));
 
-            return AddRequestTracing(builder, _ => { });
+            return AddRequestTracing(builder, Actions.Empty<AspNetMvcRequestTracingOptions>());
         }
 
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
@@ -57,7 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
             AddCore(builder);
 
             builder.Services.TryAddEnumerable(
-                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
+                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
             return builder;
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(builder, nameof(builder));
 
-            return AddResponseTracing(builder, _ => { });
+            return AddResponseTracing(builder, Actions.Empty<AspNetMvcResponseTracingOptions>());
         }
 
         public static IMvcBuilder AddResponseTracing(this IMvcBuilder builder,
@@ -80,7 +80,7 @@ namespace Microsoft.Extensions.DependencyInjection
             AddCore(builder);
 
             builder.Services.TryAddEnumerable(
-                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
+                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
             return builder;
         }
 
