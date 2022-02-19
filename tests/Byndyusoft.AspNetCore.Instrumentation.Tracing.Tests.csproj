@@ -24,8 +24,4 @@
 		<ProjectReference Include="$(SolutionDir)\src\Byndyusoft.AspNetCore.Instrumentation.Tracing.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Properties\" />
-	</ItemGroup>
-
 </Project>

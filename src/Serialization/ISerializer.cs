@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
+namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
     public interface ISerializer
     {

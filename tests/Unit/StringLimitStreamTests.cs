@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
@@ -48,7 +49,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             // assert
             var exception = Assert.Throws<ObjectDisposedException>(() => stream.Write(Array.Empty<byte>()));
             Assert.Equal(nameof(StringLimitStream), exception.ObjectName);
-
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {

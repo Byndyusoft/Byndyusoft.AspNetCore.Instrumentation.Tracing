@@ -1,12 +1,13 @@
 using System.Text.Json;
 using System.Threading.Tasks;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
 {
     public class SerializerTests
     {
-        private readonly Serializer _serializer = new Serializer();
+        private readonly Serializer _serializer = new();
 
         [Fact]
         public async Task SerializeRequestParamAsync()
@@ -40,7 +41,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public async Task SerializeResponseBodyAsync()
         {
             // arrange
-            var value = new { Key = "key", Value = "value" };
+            var value = new {Key = "key", Value = "value"};
             var options = new AspNetMvcResponseTracingOptions();
 
             // act

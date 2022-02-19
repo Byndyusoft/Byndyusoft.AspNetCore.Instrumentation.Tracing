@@ -3,6 +3,8 @@
 using System;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;

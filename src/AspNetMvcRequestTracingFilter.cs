@@ -2,18 +2,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
-    public class RequestTracingFilter : IAsyncActionFilter
+    public class AspNetMvcRequestTracingFilter : IAsyncActionFilter
     {
         private readonly AspNetMvcRequestTracingOptions _options;
         private readonly ISerializer _serializer;
 
-        public RequestTracingFilter(IOptions<AspNetMvcRequestTracingOptions> options, ISerializer serializer)
+        public AspNetMvcRequestTracingFilter(IOptions<AspNetMvcRequestTracingOptions> options, ISerializer serializer)
         {
             Guard.NotNull(options, nameof(options));
             Guard.NotNull(serializer, nameof(serializer));

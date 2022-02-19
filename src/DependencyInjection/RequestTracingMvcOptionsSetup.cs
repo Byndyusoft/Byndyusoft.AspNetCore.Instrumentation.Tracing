@@ -8,7 +8,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection
         /// <inheritdoc />
         public void Configure(MvcOptions options)
         {
-            options.Filters.Add<RequestTracingFilter>();
+            options.Filters.Add<AspNetMvcRequestTracingFilter>();
         }
     }
 }

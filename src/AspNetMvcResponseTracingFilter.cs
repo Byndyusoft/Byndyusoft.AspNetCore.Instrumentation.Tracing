@@ -1,19 +1,21 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
-    public class ResponseTracingFilter : IAsyncResultFilter
+    public class AspNetMvcResponseTracingFilter : IAsyncResultFilter
     {
         private static readonly object None = new();
         private readonly AspNetMvcResponseTracingOptions _options;
         private readonly ISerializer _serializer;
 
-        public ResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options, ISerializer serializer)
+        public AspNetMvcResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options, ISerializer serializer)
         {
             Guard.NotNull(options, nameof(options));
             Guard.NotNull(serializer, nameof(serializer));

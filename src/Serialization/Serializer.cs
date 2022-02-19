@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
+namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
     internal class Serializer : ISerializer
     {

@@ -13,7 +13,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var limit = 100;
 
             var mvcOptions = new AspNetMvcTracingOptions
-                { JsonSerializerOptions = serializerOptions, ValueMaxStringLength = limit };
+                {JsonSerializerOptions = serializerOptions, ValueMaxStringLength = limit};
             var mvcRequestOptions = new AspNetMvcRequestTracingOptions();
 
             // act

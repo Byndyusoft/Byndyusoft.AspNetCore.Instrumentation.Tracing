@@ -1,6 +1,6 @@
 using System;
 
-namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
+namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal
 {
     internal static class Guard
     {

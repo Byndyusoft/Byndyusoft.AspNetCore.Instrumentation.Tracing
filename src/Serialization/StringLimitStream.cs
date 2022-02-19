@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
-namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
+namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
     internal class StringLimitStream : Stream
     {
@@ -17,17 +17,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             _memory = new MemoryStream();
         }
 
-        [ExcludeFromCodeCoverage]
-        public override bool CanRead => Inner.CanRead;
+        [ExcludeFromCodeCoverage] public override bool CanRead => Inner.CanRead;
 
-        [ExcludeFromCodeCoverage]
-        public override bool CanSeek => Inner.CanSeek;
+        [ExcludeFromCodeCoverage] public override bool CanSeek => Inner.CanSeek;
 
-        [ExcludeFromCodeCoverage]
-        public override bool CanWrite => Inner.CanWrite;
+        [ExcludeFromCodeCoverage] public override bool CanWrite => Inner.CanWrite;
 
-        [ExcludeFromCodeCoverage]
-        public override long Length => Inner.Length;
+        [ExcludeFromCodeCoverage] public override long Length => Inner.Length;
 
         [ExcludeFromCodeCoverage]
         public override long Position

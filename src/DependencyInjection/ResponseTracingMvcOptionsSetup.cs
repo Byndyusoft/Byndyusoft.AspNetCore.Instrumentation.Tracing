@@ -8,7 +8,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection
         /// <inheritdoc />
         public void Configure(MvcOptions options)
         {
-            options.Filters.Add<ResponseTracingFilter>();
+            options.Filters.Add<AspNetMvcResponseTracingFilter>();
         }
     }
 }
