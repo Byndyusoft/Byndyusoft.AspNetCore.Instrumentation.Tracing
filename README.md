@@ -4,6 +4,27 @@ ASP.NET Core MVC tracing.
 [![(License)](https://img.shields.io/github/license/Byndyusoft/Byndyusoft.AspNetCore.Instrumentation.Tracing.svg)](LICENSE.txt)
 [![Nuget](http://img.shields.io/nuget/v/Byndyusoft.AspNetCore.Instrumentation.Tracing.svg?maxAge=10800)](https://www.nuget.org/packages/Byndyusoft.AspNetCore.Instrumentation.Tracing/) [![NuGet downloads](https://img.shields.io/nuget/dt/Byndyusoft.AspNetCore.Instrumentation.Tracing.svg)](https://www.nuget.org/packages/Byndyusoft.AspNetCore.Instrumentation.Tracing/) 
 
+
+## Installing
+
+```shell
+dotnet add package Byndyusoft.AspNetCore.Instrumentation.Tracing
+```
+
+## Usages
+
+```shell
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers()
+            .AddTracing();
+        ...
+    }
+}
+```
+
 # Contributing
 
 To contribute, you will need to setup your local environment, see [prerequisites](#prerequisites). For the contribution and workflow guide, see [package development lifecycle](#package-development-lifecycle).

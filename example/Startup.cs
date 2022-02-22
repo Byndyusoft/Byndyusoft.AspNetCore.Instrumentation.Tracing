@@ -24,8 +24,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
-
             services.AddControllers()
                 .AddTracing(options => { options.ValueMaxStringLength = 50; });
 
