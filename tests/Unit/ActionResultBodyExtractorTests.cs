@@ -9,13 +9,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
 {
     public class ActionResultBodyExtractorTests
     {
-        private readonly ActionResultBodyExtractor _extractor = new();
-
         [Fact]
         public void TryExtractBody_NullActionResult()
         {
             // act
-            var result = _extractor.TryExtractBody(null, out var body);
+            var result = ActionResultBodyExtractor.TryExtractBody(null, out var body);
 
             // assert
             Assert.False(result);
@@ -30,7 +28,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var actionResult = new FileStreamResult(stream, "application/json");
 
             // act
-            var result = _extractor.TryExtractBody(actionResult, out var body);
+            var result = ActionResultBodyExtractor.TryExtractBody(actionResult, out var body);
 
             // assert
             Assert.True(result);
@@ -45,7 +43,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var actionResult = new FileContentResult(content, "application/json");
 
             // act
-            var result = _extractor.TryExtractBody(actionResult, out var body);
+            var result = ActionResultBodyExtractor.TryExtractBody(actionResult, out var body);
 
             // assert
             Assert.True(result);
@@ -60,7 +58,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var actionResult = new ObjectResult(obj);
 
             // act
-            var result = _extractor.TryExtractBody(actionResult, out var body);
+            var result = ActionResultBodyExtractor.TryExtractBody(actionResult, out var body);
 
             // assert
             Assert.True(result);
@@ -75,7 +73,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var actionResult = new JsonResult(obj);
 
             // act
-            var result = _extractor.TryExtractBody(actionResult, out var body);
+            var result = ActionResultBodyExtractor.TryExtractBody(actionResult, out var body);
 
             // assert
             Assert.True(result);
@@ -90,7 +88,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var actionResult = new ContentResult {Content = content};
 
             // act
-            var result = _extractor.TryExtractBody(actionResult, out var body);
+            var result = ActionResultBodyExtractor.TryExtractBody(actionResult, out var body);
 
             // assert
             Assert.True(result);
