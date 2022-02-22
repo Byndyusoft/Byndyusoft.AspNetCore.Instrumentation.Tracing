@@ -34,7 +34,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var result = await _serializer.SerializeRequestParamAsync(null, options);
 
             // assert
-            Assert.Null(result);
+            Assert.Equal("null", result);
         }
 
         [Fact]

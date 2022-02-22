@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
-using Microsoft.AspNetCore.Mvc;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Services;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 
@@ -11,16 +11,18 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
     public class AspNetMvcResponseTracingFilter : IAsyncResultFilter
     {
-        private static readonly object None = new();
+        private readonly ActionResultBodyExtractor _bodyExtractor;
         private readonly AspNetMvcResponseTracingOptions _options;
         private readonly ISerializer _serializer;
 
-        public AspNetMvcResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options, ISerializer serializer)
+        public AspNetMvcResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options, ISerializer serializer,
+            ActionResultBodyExtractor bodyExtractor)
         {
             Guard.NotNull(options, nameof(options));
             Guard.NotNull(serializer, nameof(serializer));
 
             _serializer = serializer;
+            _bodyExtractor = bodyExtractor;
             _options = options.Value;
         }
 
@@ -47,7 +49,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 {"http.response.header.content_length", context.HttpContext.Response.ContentLength}
             };
 
-            if (TryGetBody(context.Result, out var body))
+            if (_bodyExtractor.TryExtractBody(context.Result, out var body))
             {
                 var json = await _serializer.SerializeResponseBodyAsync(body, _options, cancellationToken)
                     .ConfigureAwait(false);
@@ -56,21 +58,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
             var evnt = new ActivityEvent("Action executed", tags: tags);
             Activity.Current.AddEvent(evnt);
-        }
-
-        private static bool TryGetBody(IActionResult actionResult, out object? body)
-        {
-            body = actionResult switch
-            {
-                FileStreamResult _ => "stream",
-                FileContentResult _ => "byte[]",
-                ObjectResult objectResult => objectResult.Value,
-                JsonResult jsonResult => jsonResult.Value,
-                ContentResult contentResult => contentResult.Content,
-                ViewResult viewResult => new {viewResult.Model, viewResult.ViewData, viewResult.TempData},
-                _ => None
-            };
-            return body != None;
         }
     }
 }

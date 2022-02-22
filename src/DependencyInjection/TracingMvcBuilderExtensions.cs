@@ -5,6 +5,7 @@ using Byndyusoft.AspNetCore.Instrumentation.Tracing;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -17,22 +18,27 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class TracingMvcBuilderExtensions
     {
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddTracing(this IMvcBuilder builder)
+        public static IMvcBuilder AddTracing(this IMvcBuilder builder,
+            Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
-
-            return builder
-                .AddRequestTracing()
-                .AddResponseTracing();
-        }
-
-        public static IMvcBuilder AddTracing(this IMvcBuilder builder, Action<AspNetMvcTracingOptions> configure)
-        {
-            Guard.NotNull(builder, nameof(builder));
-            Guard.NotNull(configure, nameof(configure));
 
             var options = new AspNetMvcTracingOptions();
-            configure(options);
+            configure?.Invoke(options);
+
+            return builder
+                .AddRequestTracing(c => c.Configure(options))
+                .AddResponseTracing(c => c.Configure(options));
+        }
+
+        /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
+        public static IMvcCoreBuilder AddTracing(this IMvcCoreBuilder builder,
+            Action<AspNetMvcTracingOptions>? configure = null)
+        {
+            Guard.NotNull(builder, nameof(builder));
+
+            var options = new AspNetMvcTracingOptions();
+            configure?.Invoke(options);
 
             return builder
                 .AddRequestTracing(c => c.Configure(options))
@@ -40,23 +46,29 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddRequestTracing(this IMvcBuilder builder)
+        public static IMvcBuilder AddRequestTracing(this IMvcBuilder builder,
+            Action<AspNetMvcRequestTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
 
-            return AddRequestTracing(builder, Actions.Empty<AspNetMvcRequestTracingOptions>());
+            if (configure != null) builder.Services.Configure(configure);
+
+            AddCore(builder.Services);
+
+            builder.Services.TryAddEnumerable(
+                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
+            return builder;
         }
 
-        /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddRequestTracing(this IMvcBuilder builder,
-            Action<AspNetMvcRequestTracingOptions> configure)
+        /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
+        public static IMvcCoreBuilder AddRequestTracing(this IMvcCoreBuilder builder,
+            Action<AspNetMvcRequestTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
-            Guard.NotNull(configure, nameof(configure));
 
-            builder.Services.Configure(configure);
+            if (configure != null) builder.Services.Configure(configure);
 
-            AddCore(builder);
+            AddCore(builder.Services);
 
             builder.Services.TryAddEnumerable(
                 ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
@@ -64,33 +76,41 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddResponseTracing(this IMvcBuilder builder)
-        {
-            Guard.NotNull(builder, nameof(builder));
-
-            return AddResponseTracing(builder, Actions.Empty<AspNetMvcResponseTracingOptions>());
-        }
-
         public static IMvcBuilder AddResponseTracing(this IMvcBuilder builder,
-            Action<AspNetMvcResponseTracingOptions> configure)
+            Action<AspNetMvcResponseTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
-            Guard.NotNull(configure, nameof(configure));
 
-            builder.Services.Configure(configure);
+            if (configure != null) builder.Services.Configure(configure);
 
-            AddCore(builder);
+            AddCore(builder.Services);
 
             builder.Services.TryAddEnumerable(
                 ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
             return builder;
         }
 
-        private static void AddCore(IMvcBuilder builder)
+        /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
+        public static IMvcCoreBuilder AddResponseTracing(this IMvcCoreBuilder builder,
+            Action<AspNetMvcResponseTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
 
-            builder.Services.TryAddTransient<ISerializer, Serializer>();
+            if (configure != null) builder.Services.Configure(configure);
+
+            AddCore(builder.Services);
+
+            builder.Services.TryAddEnumerable(
+                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
+            return builder;
+        }
+
+        private static void AddCore(IServiceCollection services)
+        {
+            Guard.NotNull(services, nameof(services));
+
+            services.TryAddTransient<ISerializer, Serializer>();
+            services.TryAddSingleton<ActionResultBodyExtractor>();
         }
     }
 }

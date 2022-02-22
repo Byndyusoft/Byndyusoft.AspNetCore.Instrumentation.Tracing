@@ -6,10 +6,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
     internal class Serializer : ISerializer
     {
-        public Task<string?> SerializeRequestParamAsync(object? value, AspNetMvcRequestTracingOptions options,
+        public async Task<string?> SerializeRequestParamAsync(object? value, AspNetMvcRequestTracingOptions options,
             CancellationToken cancellationToken = default)
         {
-            return SerializeValueAsync(value, options, cancellationToken);
+            var result = await SerializeValueAsync(value, options, cancellationToken)
+                .ConfigureAwait(false);
+            return result ?? "null";
         }
 
         public Task<string?> SerializeResponseBodyAsync(object? value, AspNetMvcResponseTracingOptions options,
