@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Services
 {
-    public class ActionResultBodyExtractor
+    internal static class ActionResultBodyExtractor
     {
-        public bool TryExtractBody(IActionResult? actionResult, out object? body)
+        public static bool TryExtractBody(IActionResult? actionResult, out object? body)
         {
             var (value, result) = actionResult switch
             {

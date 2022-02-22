@@ -11,18 +11,15 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
     public class AspNetMvcResponseTracingFilter : IAsyncResultFilter
     {
-        private readonly ActionResultBodyExtractor _bodyExtractor;
         private readonly AspNetMvcResponseTracingOptions _options;
         private readonly ISerializer _serializer;
 
-        public AspNetMvcResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options, ISerializer serializer,
-            ActionResultBodyExtractor bodyExtractor)
+        public AspNetMvcResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options, ISerializer serializer)
         {
             Guard.NotNull(options, nameof(options));
             Guard.NotNull(serializer, nameof(serializer));
 
             _serializer = serializer;
-            _bodyExtractor = bodyExtractor;
             _options = options.Value;
         }
 
@@ -49,7 +46,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 {"http.response.header.content_length", context.HttpContext.Response.ContentLength}
             };
 
-            if (_bodyExtractor.TryExtractBody(context.Result, out var body))
+            if (ActionResultBodyExtractor.TryExtractBody(context.Result, out var body))
             {
                 var json = await _serializer.SerializeResponseBodyAsync(body, _options, cancellationToken)
                     .ConfigureAwait(false);

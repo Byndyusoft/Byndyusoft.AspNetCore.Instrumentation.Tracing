@@ -5,7 +5,6 @@ using Byndyusoft.AspNetCore.Instrumentation.Tracing;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -110,7 +109,6 @@ namespace Microsoft.Extensions.DependencyInjection
             Guard.NotNull(services, nameof(services));
 
             services.TryAddTransient<ISerializer, Serializer>();
-            services.TryAddSingleton<ActionResultBodyExtractor>();
         }
     }
 }
