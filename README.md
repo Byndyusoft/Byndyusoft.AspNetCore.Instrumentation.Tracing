@@ -25,6 +25,33 @@ public class Startup
 }
 ```
 
+## Configuring
+
+```shell
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers()
+                .AddTracing(options =>
+                {
+                    options.ValueMaxStringLength = 50;
+                    options.Serializer = new SystemTextJsonSerializer
+                    {
+                        Options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                        {
+                            Converters =
+                            {
+                                new JsonStringEnumConverter()
+                            }
+                        }
+                    };
+                });
+        ...
+    }
+}
+```
+
 # Contributing
 
 To contribute, you will need to setup your local environment, see [prerequisites](#prerequisites). For the contribution and workflow guide, see [package development lifecycle](#package-development-lifecycle).

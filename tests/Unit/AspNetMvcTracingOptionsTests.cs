@@ -1,6 +1,6 @@
 using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
+using Moq;
 using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
@@ -18,40 +18,30 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         }
 
         [Fact]
-        public void Constructor_Adds_JsonStringEnumConverter()
-        {
-            // act
-            var options = new AspNetMvcTracingOptions();
-
-            // assert
-            Assert.Contains(options.JsonSerializerOptions.Converters, c => c is JsonStringEnumConverter);
-        }
-
-        [Fact]
-        public void JsonSerializerOptions_Setter()
+        public void Serializer_Setter()
         {
             // arrange
             var options = new AspNetMvcTracingOptions();
-            var jsonOptions = new JsonSerializerOptions();
+            var serializer = Mock.Of<ISerializer>();
 
             // act
-            options.JsonSerializerOptions = jsonOptions;
+            options.Serializer = serializer;
 
             // assert
-            Assert.Same(jsonOptions, options.JsonSerializerOptions);
+            Assert.Same(serializer, options.Serializer);
         }
 
         [Fact]
-        public void JsonSerializerOptions_Setter_Null_ThrowsException()
+        public void Serializer_Setter_Null_ThrowsException()
         {
             // arrange
             var options = new AspNetMvcTracingOptions();
 
             // act
-            var exception = Assert.Throws<ArgumentNullException>(() => options.JsonSerializerOptions = null!);
+            var exception = Assert.Throws<ArgumentNullException>(() => options.Serializer = null!);
 
             // assert
-            Assert.Equal(nameof(AspNetMvcTracingOptions.JsonSerializerOptions), exception.ParamName);
+            Assert.Equal(nameof(AspNetMvcTracingOptions.Serializer), exception.ParamName);
         }
 
         [Theory]

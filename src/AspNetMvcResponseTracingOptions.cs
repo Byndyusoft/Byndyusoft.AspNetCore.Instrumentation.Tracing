@@ -4,7 +4,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
     {
         internal void Configure(AspNetMvcTracingOptions options)
         {
-            JsonSerializerOptions = options.JsonSerializerOptions;
+            Serializer = options.Serializer;
             ValueMaxStringLength = options.ValueMaxStringLength;
         }
     }

@@ -1,13 +1,13 @@
 using System.Text.Json;
 using System.Threading.Tasks;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
 {
-    public class SerializerTests
+    public class SystemTextJsonSerializerTests
     {
-        private readonly Serializer _serializer = new();
+        private readonly SystemTextJsonSerializer _serializer = new();
 
         [Fact]
         public async Task SerializeRequestParamAsync()
@@ -20,7 +20,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var result = await _serializer.SerializeRequestParamAsync(value, options);
 
             // assert
-            var expected = JsonSerializer.Serialize(value, options.JsonSerializerOptions);
+            var expected = JsonSerializer.Serialize(value, _serializer.Options);
             Assert.Equal(expected, result);
         }
 
@@ -48,7 +48,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var result = await _serializer.SerializeResponseBodyAsync(value, options);
 
             // assert
-            var expected = JsonSerializer.Serialize(value, options.JsonSerializerOptions);
+            var expected = JsonSerializer.Serialize(value, _serializer.Options);
             Assert.Equal(expected, result);
         }
 

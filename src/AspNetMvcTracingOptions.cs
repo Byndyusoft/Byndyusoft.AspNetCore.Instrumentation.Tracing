@@ -1,6 +1,6 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
@@ -8,21 +8,21 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
     {
         public const int DefaultValueMaxStringLength = 2000;
 
-        private JsonSerializerOptions _jsonSerializerOptions = new();
+        private ISerializer _serializer;
         private int? _valueMaxStringLength;
 
         public AspNetMvcTracingOptions()
         {
-            JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            ValueMaxStringLength = DefaultValueMaxStringLength;
+            _serializer = new NewtonsoftJsonSerializer();
+            _valueMaxStringLength = DefaultValueMaxStringLength;
         }
 
-        public JsonSerializerOptions JsonSerializerOptions
+        public ISerializer Serializer
         {
-            get => _jsonSerializerOptions;
-            set => _jsonSerializerOptions = Guard.NotNull(value, nameof(JsonSerializerOptions));
+            get => _serializer;
+            set => _serializer = Guard.NotNull(value, nameof(Serializer));
         }
-
+        
         public int? ValueMaxStringLength
         {
             get => _valueMaxStringLength;

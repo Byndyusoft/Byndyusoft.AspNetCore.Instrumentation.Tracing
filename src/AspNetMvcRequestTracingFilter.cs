@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
@@ -13,14 +12,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
     public class AspNetMvcRequestTracingFilter : IAsyncActionFilter
     {
         private readonly AspNetMvcRequestTracingOptions _options;
-        private readonly ISerializer _serializer;
 
-        public AspNetMvcRequestTracingFilter(IOptions<AspNetMvcRequestTracingOptions> options, ISerializer serializer)
+        public AspNetMvcRequestTracingFilter(IOptions<AspNetMvcRequestTracingOptions> options)
         {
             Guard.NotNull(options, nameof(options));
-            Guard.NotNull(serializer, nameof(serializer));
 
-            _serializer = serializer;
             _options = options.Value;
         }
 
@@ -50,7 +46,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var json = await _serializer.SerializeRequestParamAsync(value, _options, cancellationToken)
+                    var json = await _options.Serializer.SerializeRequestParamAsync(value, _options, cancellationToken)
                         .ConfigureAwait(false);
                     tags.Add($"http.request.params.{name}", json);
                 }

@@ -4,7 +4,6 @@ using System;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -52,8 +51,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configure != null) builder.Services.Configure(configure);
 
-            AddCore(builder.Services);
-
             builder.Services.TryAddEnumerable(
                 ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
             return builder;
@@ -66,8 +63,6 @@ namespace Microsoft.Extensions.DependencyInjection
             Guard.NotNull(builder, nameof(builder));
 
             if (configure != null) builder.Services.Configure(configure);
-
-            AddCore(builder.Services);
 
             builder.Services.TryAddEnumerable(
                 ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
@@ -82,8 +77,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configure != null) builder.Services.Configure(configure);
 
-            AddCore(builder.Services);
-
             builder.Services.TryAddEnumerable(
                 ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
             return builder;
@@ -97,18 +90,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configure != null) builder.Services.Configure(configure);
 
-            AddCore(builder.Services);
-
             builder.Services.TryAddEnumerable(
                 ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
             return builder;
-        }
-
-        private static void AddCore(IServiceCollection services)
-        {
-            Guard.NotNull(services, nameof(services));
-
-            services.TryAddTransient<ISerializer, Serializer>();
         }
     }
 }

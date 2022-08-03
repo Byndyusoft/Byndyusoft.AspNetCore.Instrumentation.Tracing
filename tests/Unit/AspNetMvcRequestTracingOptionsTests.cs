@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+using System.Text.Json;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
+using Moq;
 using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
@@ -9,18 +11,18 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void Configure()
         {
             // arrange
-            var serializerOptions = new JsonSerializerOptions();
+            var serializer = Mock.Of<ISerializer>();
             var limit = 100;
 
             var mvcOptions = new AspNetMvcTracingOptions
-                {JsonSerializerOptions = serializerOptions, ValueMaxStringLength = limit};
+                {Serializer = serializer, ValueMaxStringLength = limit};
             var mvcRequestOptions = new AspNetMvcRequestTracingOptions();
 
             // act
             mvcRequestOptions.Configure(mvcOptions);
 
             // assert
-            Assert.Same(mvcOptions.JsonSerializerOptions, mvcRequestOptions.JsonSerializerOptions);
+            Assert.Same(mvcOptions.Serializer, mvcRequestOptions.Serializer);
             Assert.Equal(mvcOptions.ValueMaxStringLength, mvcRequestOptions.ValueMaxStringLength);
         }
     }

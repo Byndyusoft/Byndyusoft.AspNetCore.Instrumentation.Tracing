@@ -1,7 +1,8 @@
-﻿using System.Text.Json;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
@@ -39,14 +40,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void AddRequestTracing_Options()
         {
             // arrange
-            var jsonSerializerOptions = new JsonSerializerOptions();
+            var serializer = Mock.Of<ISerializer>();
             var valueMaxStringLength = 1000;
 
             // act
             _mvcBuilder.AddRequestTracing(
                 tracing =>
                 {
-                    tracing.JsonSerializerOptions = jsonSerializerOptions;
+                    tracing.Serializer = serializer;
                     tracing.ValueMaxStringLength = valueMaxStringLength;
                 });
 
@@ -54,7 +55,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var provider = _services.BuildServiceProvider();
 
             var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcRequestTracingOptions>>().Value;
-            Assert.Same(jsonSerializerOptions, requestTracingOptions.JsonSerializerOptions);
+            Assert.Same(serializer, requestTracingOptions.Serializer);
             Assert.Equal(valueMaxStringLength, requestTracingOptions.ValueMaxStringLength);
         }
 
@@ -80,14 +81,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void AddResponseTracing_Options()
         {
             // arrange
-            var jsonSerializerOptions = new JsonSerializerOptions();
+            var serializer = Mock.Of<ISerializer>();
             var valueMaxStringLength = 1000;
 
             // act
             _mvcBuilder.AddResponseTracing(
                 tracing =>
                 {
-                    tracing.JsonSerializerOptions = jsonSerializerOptions;
+                    tracing.Serializer = serializer;
                     tracing.ValueMaxStringLength = valueMaxStringLength;
                 });
 
@@ -95,7 +96,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var provider = _services.BuildServiceProvider();
 
             var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcResponseTracingOptions>>().Value;
-            Assert.Same(jsonSerializerOptions, responseTracingOptions.JsonSerializerOptions);
+            Assert.Same(serializer, responseTracingOptions.Serializer);
             Assert.Equal(valueMaxStringLength, responseTracingOptions.ValueMaxStringLength);
         }
 
@@ -128,14 +129,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void AddTracing_Options()
         {
             // arrange
-            var jsonSerializerOptions = new JsonSerializerOptions();
+            var serializer = Mock.Of<ISerializer>();
             var valueMaxStringLength = 1000;
 
             // act
             _mvcBuilder.AddTracing(
                 tracing =>
                 {
-                    tracing.JsonSerializerOptions = jsonSerializerOptions;
+                    tracing.Serializer = serializer;
                     tracing.ValueMaxStringLength = valueMaxStringLength;
                 });
 
@@ -143,11 +144,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             var provider = _services.BuildServiceProvider();
 
             var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcResponseTracingOptions>>().Value;
-            Assert.Same(jsonSerializerOptions, requestTracingOptions.JsonSerializerOptions);
+            Assert.Same(serializer, requestTracingOptions.Serializer);
             Assert.Equal(valueMaxStringLength, requestTracingOptions.ValueMaxStringLength);
 
             var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcRequestTracingOptions>>().Value;
-            Assert.Same(jsonSerializerOptions, responseTracingOptions.JsonSerializerOptions);
+            Assert.Same(serializer, responseTracingOptions.Serializer);
             Assert.Equal(valueMaxStringLength, responseTracingOptions.ValueMaxStringLength);
         }
     }

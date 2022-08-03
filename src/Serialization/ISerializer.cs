@@ -5,10 +5,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
     public interface ISerializer
     {
-        Task<string?> SerializeRequestParamAsync(object? value, AspNetMvcRequestTracingOptions options,
+        ValueTask<string?> SerializeRequestParamAsync(object? value, AspNetMvcRequestTracingOptions options,
             CancellationToken cancellationToken);
 
-        Task<string?> SerializeResponseBodyAsync(object? value, AspNetMvcResponseTracingOptions options,
+        ValueTask<string?> SerializeResponseBodyAsync(object? value, AspNetMvcResponseTracingOptions options,
             CancellationToken cancellationToken);
     }
 }
