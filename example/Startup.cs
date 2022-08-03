@@ -65,7 +65,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                             options.Filter = context => context.Request.Path.StartsWithSegments("/swagger") == false;
                         })
                     .AddConsoleExporter()
-                    .AddJaegerExporter(jaeger => { Configuration.GetSection("Jaeger").Bind(jaeger); });
+                    .AddJaegerExporter(Configuration.GetSection("Jaeger").Bind);
             });
         }
 
