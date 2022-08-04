@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Services;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
@@ -11,9 +10,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
     public class AspNetMvcResponseTracingFilter : IAsyncResultFilter
     {
-        private readonly AspNetMvcResponseTracingOptions _options;
+        private readonly AspNetMvcTracingOptions _options;
 
-        public AspNetMvcResponseTracingFilter(IOptions<AspNetMvcResponseTracingOptions> options)
+        public AspNetMvcResponseTracingFilter(IOptions<AspNetMvcTracingOptions> options)
         {
             Guard.NotNull(options, nameof(options));
 
@@ -45,7 +44,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
             if (ActionResultBodyExtractor.TryExtractBody(context.Result, out var body))
             {
-                var json = await _options.Serializer.SerializeResponseBodyAsync(body, _options, cancellationToken)
+                var json = await _options.Serializer.SerializeAsync(body, _options, cancellationToken)
                     .ConfigureAwait(false);
                 tags.Add("http.response.body", json);
             }

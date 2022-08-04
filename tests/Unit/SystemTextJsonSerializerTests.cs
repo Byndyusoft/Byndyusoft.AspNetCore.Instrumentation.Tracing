@@ -14,10 +14,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         {
             // arrange
             var value = new {Key = "key", Value = "value"};
-            var options = new AspNetMvcRequestTracingOptions();
+            var options = new AspNetMvcTracingOptions();
 
             // act
-            var result = await _serializer.SerializeRequestParamAsync(value, options);
+            var result = await _serializer.SerializeAsync(value, options);
 
             // assert
             var expected = JsonSerializer.Serialize(value, _serializer.Options);
@@ -28,10 +28,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public async Task SerializeRequestParamAsync_NullValue()
         {
             // arrange
-            var options = new AspNetMvcRequestTracingOptions();
+            var options = new AspNetMvcTracingOptions();
 
             // act
-            var result = await _serializer.SerializeRequestParamAsync(null, options);
+            var result = await _serializer.SerializeAsync(null, options);
 
             // assert
             Assert.Equal("null", result);
@@ -42,10 +42,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         {
             // arrange
             var value = new {Key = "key", Value = "value"};
-            var options = new AspNetMvcResponseTracingOptions();
+            var options = new AspNetMvcTracingOptions();
 
             // act
-            var result = await _serializer.SerializeResponseBodyAsync(value, options);
+            var result = await _serializer.SerializeAsync(value, options);
 
             // assert
             var expected = JsonSerializer.Serialize(value, _serializer.Options);
@@ -56,10 +56,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public async Task SerializeResponseBodyAsync_NullValue()
         {
             // arrange
-            var options = new AspNetMvcResponseTracingOptions();
+            var options = new AspNetMvcTracingOptions();
 
             // act
-            var result = await _serializer.SerializeResponseBodyAsync(null, options);
+            var result = await _serializer.SerializeAsync(null, options);
 
             // assert
             Assert.Null(result);

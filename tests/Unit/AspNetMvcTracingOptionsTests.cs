@@ -71,5 +71,24 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             // assert
             Assert.Equal(nameof(AspNetMvcTracingOptions.ValueMaxStringLength), exception.ParamName);
         }
+
+        [Fact]
+        public void Configure()
+        {
+            // arrange
+            var serializer = Mock.Of<ISerializer>();
+            var limit = 100;
+
+            var mvcOptions = new AspNetMvcTracingOptions
+                { Serializer = serializer, ValueMaxStringLength = limit };
+            var mvcRequestOptions = new AspNetMvcTracingOptions();
+
+            // act
+            mvcRequestOptions.Configure(mvcOptions);
+
+            // assert
+            Assert.Same(mvcOptions.Serializer, mvcRequestOptions.Serializer);
+            Assert.Equal(mvcOptions.ValueMaxStringLength, mvcRequestOptions.ValueMaxStringLength);
+        }
     }
 }

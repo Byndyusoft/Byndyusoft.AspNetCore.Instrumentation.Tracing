@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
@@ -27,6 +29,18 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             get => _valueMaxStringLength;
             set => _valueMaxStringLength = Guard.NotNegative(value, nameof(ValueMaxStringLength));
+        }
+
+        public ValueTask<string?> SerializeAsync(object? value, AspNetMvcTracingOptions options,
+            CancellationToken cancellationToken)
+        {
+            return Serializer.SerializeAsync(value, this, cancellationToken);
+        }
+
+        internal void Configure(AspNetMvcTracingOptions options)
+        {
+            Serializer = options.Serializer;
+            ValueMaxStringLength = options.ValueMaxStringLength;
         }
     }
 }

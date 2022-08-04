@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
         public static IMvcBuilder AddRequestTracing(this IMvcBuilder builder,
-            Action<AspNetMvcRequestTracingOptions>? configure = null)
+            Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
 
@@ -58,7 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
         public static IMvcCoreBuilder AddRequestTracing(this IMvcCoreBuilder builder,
-            Action<AspNetMvcRequestTracingOptions>? configure = null)
+            Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
 
@@ -71,7 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
         public static IMvcBuilder AddResponseTracing(this IMvcBuilder builder,
-            Action<AspNetMvcResponseTracingOptions>? configure = null)
+            Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
 
@@ -84,7 +84,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
         public static IMvcCoreBuilder AddResponseTracing(this IMvcCoreBuilder builder,
-            Action<AspNetMvcResponseTracingOptions>? configure = null)
+            Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
 
