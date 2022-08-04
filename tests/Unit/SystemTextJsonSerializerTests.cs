@@ -10,7 +10,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         private readonly SystemTextJsonSerializer _serializer = new();
 
         [Fact]
-        public async Task SerializeRequestParamAsync()
+        public async Task SerializeAsync()
         {
             // arrange
             var value = new {Key = "key", Value = "value"};
@@ -25,7 +25,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         }
 
         [Fact]
-        public async Task SerializeRequestParamAsync_NullValue()
+        public async Task SerializeAsync_NullValue()
         {
             // arrange
             var options = new AspNetMvcTracingOptions();
@@ -35,34 +35,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
 
             // assert
             Assert.Equal("null", result);
-        }
-
-        [Fact]
-        public async Task SerializeResponseBodyAsync()
-        {
-            // arrange
-            var value = new {Key = "key", Value = "value"};
-            var options = new AspNetMvcTracingOptions();
-
-            // act
-            var result = await _serializer.SerializeAsync(value, options);
-
-            // assert
-            var expected = JsonSerializer.Serialize(value, _serializer.Options);
-            Assert.Equal(expected, result);
-        }
-
-        [Fact]
-        public async Task SerializeResponseBodyAsync_NullValue()
-        {
-            // arrange
-            var options = new AspNetMvcTracingOptions();
-
-            // act
-            var result = await _serializer.SerializeAsync(null, options);
-
-            // assert
-            Assert.Null(result);
         }
     }
 }
