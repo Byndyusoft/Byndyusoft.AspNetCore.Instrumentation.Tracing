@@ -44,7 +44,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
             if (ActionResultBodyExtractor.TryExtractBody(context.Result, out var body))
             {
-                var json = await _options.Serializer.SerializeAsync(body, _options, cancellationToken)
+                var json = await _options.SerializeAsync(body, cancellationToken)
                     .ConfigureAwait(false);
                 tags.Add("http.response.body", json);
             }

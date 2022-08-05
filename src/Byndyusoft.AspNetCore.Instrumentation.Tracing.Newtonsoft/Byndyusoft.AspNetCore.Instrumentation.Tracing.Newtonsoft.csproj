@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
@@ -17,6 +17,15 @@
 
   <ItemGroup>
     <None Include="..\..\icon.png" Pack="true" PackagePath="icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="2.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Byndyusoft.AspNetCore.Instrumentation.Tracing\Byndyusoft.AspNetCore.Instrumentation.Tracing.csproj" />
   </ItemGroup>
 
 </Project>

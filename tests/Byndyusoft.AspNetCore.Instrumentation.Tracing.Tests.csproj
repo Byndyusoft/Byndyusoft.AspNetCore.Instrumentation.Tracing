@@ -6,6 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="2.1.0" />
 		<PackageReference Include="OpenTelemetry" Version="1.3.0" />
 		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.3.0" />
 		<PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.3.0" />
@@ -30,6 +31,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="$(SolutionDir)\src\Byndyusoft.AspNetCore.Instrumentation.Tracing\Byndyusoft.AspNetCore.Instrumentation.Tracing.csproj" />
+		<ProjectReference Include="..\src\Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft\Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft.csproj" />
 	</ItemGroup>
 
 </Project>

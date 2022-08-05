@@ -15,7 +15,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         public AspNetMvcTracingOptions()
         {
-            _serializer = new NewtonsoftJsonSerializer();
+            _serializer = new SystemTextJsonSerializer();
             _valueMaxStringLength = DefaultValueMaxStringLength;
         }
 
@@ -31,8 +31,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             set => _valueMaxStringLength = Guard.NotNegative(value, nameof(ValueMaxStringLength));
         }
 
-        public ValueTask<string?> SerializeAsync(object? value, AspNetMvcTracingOptions options,
-            CancellationToken cancellationToken)
+        public ValueTask<string?> SerializeAsync(object? value, CancellationToken cancellationToken = default)
         {
             return Serializer.SerializeAsync(value, this, cancellationToken);
         }

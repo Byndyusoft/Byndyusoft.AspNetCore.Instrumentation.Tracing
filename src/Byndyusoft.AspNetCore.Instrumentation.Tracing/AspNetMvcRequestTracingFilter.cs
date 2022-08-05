@@ -46,7 +46,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var json = await _options.Serializer.SerializeAsync(value, _options, cancellationToken)
+                    var json = await _options.SerializeAsync(value, cancellationToken)
                         .ConfigureAwait(false);
                     tags.Add($"http.request.params.{name}", json);
                 }

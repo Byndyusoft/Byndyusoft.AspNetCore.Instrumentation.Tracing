@@ -1,14 +1,22 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft.Internal;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
+using Byndyusoft.MaskedSerialization.Newtonsoft.Extensions;
 using Newtonsoft.Json;
 
-namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json
+namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft
 {
     public class NewtonsoftJsonSerializer : SerializerBase
     {
-        private JsonSerializerSettings _settings = new();
+        private JsonSerializerSettings _settings;
+
+        public NewtonsoftJsonSerializer()
+        {
+            _settings = new JsonSerializerSettings();
+            _settings.SetupSettingsForMaskedSerialization();
+        }
 
         public JsonSerializerSettings Settings
         {
@@ -22,7 +30,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json
             AspNetMvcTracingOptions options,
             CancellationToken cancellationToken)
         {
-            using var writer = new StreamWriter(stream);
+            var writer = new StreamWriter(stream, null!, -1, true);
             using var jsonWriter = new JsonTextWriter(writer);
 
             var serializer = JsonSerializer.Create(Settings);
