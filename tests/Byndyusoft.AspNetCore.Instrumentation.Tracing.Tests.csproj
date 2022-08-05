@@ -29,7 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="$(SolutionDir)\src\Byndyusoft.AspNetCore.Instrumentation.Tracing.csproj" />
+		<ProjectReference Include="$(SolutionDir)\src\Byndyusoft.AspNetCore.Instrumentation.Tracing\Byndyusoft.AspNetCore.Instrumentation.Tracing.csproj" />
 	</ItemGroup>
 
 </Project>
