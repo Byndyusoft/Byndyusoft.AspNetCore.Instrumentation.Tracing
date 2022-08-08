@@ -5,38 +5,38 @@ using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
 {
-    public class SystemTextJsonSerializerTests
+    public class SystemTextJsonFormatterTests
     {
         [Fact]
-        public async Task SerializeAsync()
+        public async Task FormatAsync()
         {
             // arrange
             var value = new {Key = "key", Value = "value"};
-            var serializer = new SystemTextJsonSerializer();
+            var formatter = new SystemTextJsonFormatter();
             var options = new AspNetMvcTracingOptions
             {
-                Serializer = serializer
+                Formatter = formatter
             };
 
             // act
-            var result = await options.SerializeAsync(value);
+            var result = await options.FormatAsync(value);
 
             // assert
-            var expected = JsonSerializer.Serialize(value, serializer.Options);
+            var expected = JsonSerializer.Serialize(value, formatter.Options);
             Assert.Equal(expected, result);
         }
 
         [Fact]
-        public async Task SerializeAsync_NullValue()
+        public async Task FormatAsync_NullValue()
         {
             // arrange
             var options = new AspNetMvcTracingOptions
             {
-                Serializer = new SystemTextJsonSerializer()
+                Formatter = new SystemTextJsonFormatter()
             };
 
             // act
-            var result = await options.SerializeAsync(null);
+            var result = await options.FormatAsync(null);
 
             // assert
             Assert.Equal("null", result);

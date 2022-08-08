@@ -27,7 +27,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             builder.AddTracing(
                 tracing =>
                 {
-                    tracing.Serializer = new SystemTextJsonSerializer
+                    tracing.Formatter = new SystemTextJsonFormatter
                     {
                         Options = _jsonSerializerOptions
                     };

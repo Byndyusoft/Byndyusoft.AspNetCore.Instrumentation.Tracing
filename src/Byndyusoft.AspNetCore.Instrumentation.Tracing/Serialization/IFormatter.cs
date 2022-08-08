@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
-    public interface ISerializer
+    public interface IFormatter
     {
-        ValueTask<string?> SerializeAsync(object? value, AspNetMvcTracingOptions options,
+        ValueTask<string?> FormatAsync(object? value, AspNetMvcTracingOptions options,
             CancellationToken cancellationToken);
     }
 }

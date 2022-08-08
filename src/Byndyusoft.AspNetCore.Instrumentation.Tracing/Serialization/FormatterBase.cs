@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
-    public abstract class SerializerBase : ISerializer
+    public abstract class FormatterBase : IFormatter
     {
-        public async ValueTask<string?> SerializeAsync(object? value, AspNetMvcTracingOptions options,
+        public async ValueTask<string?> FormatAsync(object? value, AspNetMvcTracingOptions options,
             CancellationToken cancellationToken = default)
         {
             if (value is null)
@@ -14,13 +14,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 
             using var stream = new StringLimitStream(options.ValueMaxStringLength);
 
-            await SerializeValueAsync(value, stream, options, cancellationToken)
+            await FormatValueAsync(value, stream, options, cancellationToken)
                 .ConfigureAwait(false);
 
             return stream.GetString();
         }
 
-        protected abstract ValueTask SerializeValueAsync(object value, Stream stream, AspNetMvcTracingOptions options,
+        protected abstract ValueTask FormatValueAsync(object value, Stream stream, AspNetMvcTracingOptions options,
             CancellationToken cancellationToken);
     }
 }

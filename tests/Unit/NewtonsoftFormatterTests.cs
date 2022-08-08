@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 using Byndyusoft.MaskedSerialization.Annotations.Attributes;
 using Byndyusoft.MaskedSerialization.Annotations.Consts;
 using Newtonsoft.Json;
@@ -7,25 +7,25 @@ using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
 {
-    public class NewtonsoftJsonSerializerTests
+    public class NewtonsoftFormatterTests
     {
-        private readonly NewtonsoftJsonSerializer _serializer = new();
+        private readonly NewtonsoftJsonFormatter _formatter = new();
 
         [Fact]
-        public async Task SerializeAsync()
+        public async Task FormatAsync()
         {
             // arrange
             var value = new { Key = "key", Value = "value" };
             var options = new AspNetMvcTracingOptions
             {
-                Serializer = _serializer
+                Formatter = _formatter
             };
 
             // act
-            var result = await _serializer.SerializeAsync(value, options);
+            var result = await _formatter.FormatAsync(value, options);
 
             // assert
-            var expected = JsonConvert.SerializeObject(value, _serializer.Settings);
+            var expected = JsonConvert.SerializeObject(value, _formatter.Settings);
             Assert.Equal(expected, result);
         }
 
@@ -35,11 +35,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             // arrange
             var options = new AspNetMvcTracingOptions
             {
-                Serializer = _serializer
+                Formatter = _formatter
             };
 
             // act
-            var result = await options.SerializeAsync(null);
+            var result = await options.FormatAsync(null);
 
             // assert
             Assert.Equal("null", result);
@@ -51,7 +51,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             // arrange
             var options = new AspNetMvcTracingOptions
             {
-                Serializer = _serializer
+                Formatter = _formatter
             };
             var maskedClass = new MaskedClass
             {
@@ -60,7 +60,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             };
 
             // act
-            var result = await options.SerializeAsync(maskedClass);
+            var result = await options.FormatAsync(maskedClass);
 
             // assert
             Assert.NotNull(result);

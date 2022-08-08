@@ -46,13 +46,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var json = await _options.SerializeAsync(value, cancellationToken)
+                    var json = await _options.FormatAsync(value, cancellationToken)
                         .ConfigureAwait(false);
                     tags.Add($"http.request.params.{name}", json);
                 }
 
-                var evnt = new ActivityEvent("Action executing", tags: tags);
-                activity.AddEvent(evnt);
+                var @event = new ActivityEvent("Action executing", tags: tags);
+                activity.AddEvent(@event);
             }
 
             await next();

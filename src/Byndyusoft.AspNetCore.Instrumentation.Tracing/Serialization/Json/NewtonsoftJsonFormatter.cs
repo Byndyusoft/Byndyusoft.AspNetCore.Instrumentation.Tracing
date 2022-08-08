@@ -1,20 +1,22 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft.Internal;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.MaskedSerialization.Newtonsoft.Extensions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
-namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft
+namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json
 {
-    public class NewtonsoftJsonSerializer : SerializerBase
+    public class NewtonsoftJsonFormatter : FormatterBase
     {
         private JsonSerializerSettings _settings;
 
-        public NewtonsoftJsonSerializer()
+        public NewtonsoftJsonFormatter()
         {
             _settings = new JsonSerializerSettings();
+            _settings.Converters.Add(new StringEnumConverter());
             _settings.SetupSettingsForMaskedSerialization();
         }
 
@@ -24,7 +26,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft
             set => _settings = Guard.NotNull(value, nameof(Settings));
         }
 
-        protected override async ValueTask SerializeValueAsync(
+        protected override async ValueTask FormatValueAsync(
             object value,
             Stream stream,
             AspNetMvcTracingOptions options,
