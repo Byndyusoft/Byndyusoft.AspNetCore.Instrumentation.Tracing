@@ -16,7 +16,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json
         public NewtonsoftJsonFormatter()
         {
             _settings = new JsonSerializerSettings();
-            _settings.Converters.Add(new StringEnumConverter());
             _settings.SetupSettingsForMaskedSerialization();
         }
 

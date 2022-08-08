@@ -31,7 +31,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             set => _valueMaxStringLength = Guard.NotNegative(value, nameof(ValueMaxStringLength));
         }
 
-        public ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
+        internal ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
         {
             return Formatter.FormatAsync(value, this, cancellationToken);
         }
