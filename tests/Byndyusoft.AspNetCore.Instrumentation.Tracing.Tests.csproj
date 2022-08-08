@@ -31,7 +31,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="$(SolutionDir)\src\Byndyusoft.AspNetCore.Instrumentation.Tracing\Byndyusoft.AspNetCore.Instrumentation.Tracing.csproj" />
-		<ProjectReference Include="..\src\Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft\Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft.csproj" />
 	</ItemGroup>
 
 </Project>

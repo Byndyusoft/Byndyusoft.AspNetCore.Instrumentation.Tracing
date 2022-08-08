@@ -37,8 +37,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Byndyusoft.AspNetCore.Instr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests", "tests\Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.csproj", "{DE7F68D5-5396-4E76-97B3-4A3FFAA9E8C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft", "src\Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft\Byndyusoft.AspNetCore.Instrumentation.Tracing.Newtonsoft.csproj", "{5AFC4A3A-5585-46E8-ADE2-12109FEF822A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,10 +55,6 @@ Global
 		{DE7F68D5-5396-4E76-97B3-4A3FFAA9E8C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE7F68D5-5396-4E76-97B3-4A3FFAA9E8C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE7F68D5-5396-4E76-97B3-4A3FFAA9E8C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5AFC4A3A-5585-46E8-ADE2-12109FEF822A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5AFC4A3A-5585-46E8-ADE2-12109FEF822A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5AFC4A3A-5585-46E8-ADE2-12109FEF822A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5AFC4A3A-5585-46E8-ADE2-12109FEF822A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,7 +65,6 @@ Global
 		{CB2977E0-8211-40CD-A57F-CE68D77B4AFD} = {5CDF3196-F33E-4893-BB1C-35A1FB11FF11}
 		{333C729D-A3F0-440F-8645-BA366473D8AD} = {A6BFE2AE-80AA-4F3D-A50D-37948B0DD855}
 		{DE7F68D5-5396-4E76-97B3-4A3FFAA9E8C4} = {E3E62BE7-0D76-4C6B-82C4-7B1D9B1F5AF7}
-		{5AFC4A3A-5585-46E8-ADE2-12109FEF822A} = {5CDF3196-F33E-4893-BB1C-35A1FB11FF11}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0229024-BE1F-4815-B2B6-F17C4768420B}
