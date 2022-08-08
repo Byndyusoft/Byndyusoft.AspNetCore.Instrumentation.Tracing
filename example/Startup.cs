@@ -31,7 +31,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                 .AddTracing(options =>
                 {
                     options.ValueMaxStringLength = 50;
-                    options.Serializer = new SystemTextJsonSerializer
+                    options.Formatter = new SystemTextJsonFormatter
                     {
                         Options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
                         {

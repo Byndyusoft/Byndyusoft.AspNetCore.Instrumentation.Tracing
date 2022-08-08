@@ -6,7 +6,7 @@ using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json
 {
-    public class SystemTextJsonSerializer : SerializerBase
+    public class SystemTextJsonFormatter : FormatterBase
     {
         private JsonSerializerOptions _options = new();
 
@@ -16,7 +16,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json
             set => _options = Guard.NotNull(value, nameof(Options));
         }
 
-        protected override async ValueTask SerializeValueAsync(
+        protected override async ValueTask FormatValueAsync(
             object value, 
             Stream stream, 
             AspNetMvcTracingOptions options, 

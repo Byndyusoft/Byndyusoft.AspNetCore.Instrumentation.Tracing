@@ -17,7 +17,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\icon.png" Pack="true" PackagePath="icon.png" />
+		<None Include="..\..\icon.png" Pack="true" PackagePath="icon.png" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
@@ -34,7 +34,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	  <PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="2.1.0" />
 	</ItemGroup>
 
 </Project>

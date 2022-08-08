@@ -11,9 +11,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
     public class AspNetMvcRequestTracingFilter : IAsyncActionFilter
     {
-        private readonly AspNetMvcRequestTracingOptions _options;
+        private readonly AspNetMvcTracingOptions _options;
 
-        public AspNetMvcRequestTracingFilter(IOptions<AspNetMvcRequestTracingOptions> options)
+        public AspNetMvcRequestTracingFilter(IOptions<AspNetMvcTracingOptions> options)
         {
             Guard.NotNull(options, nameof(options));
 
@@ -46,13 +46,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var json = await _options.Serializer.SerializeRequestParamAsync(value, _options, cancellationToken)
+                    var json = await _options.FormatAsync(value, cancellationToken)
                         .ConfigureAwait(false);
                     tags.Add($"http.request.params.{name}", json);
                 }
 
-                var evnt = new ActivityEvent("Action executing", tags: tags);
-                activity.AddEvent(evnt);
+                var @event = new ActivityEvent("Action executing", tags: tags);
+                activity.AddEvent(@event);
             }
 
             await next();

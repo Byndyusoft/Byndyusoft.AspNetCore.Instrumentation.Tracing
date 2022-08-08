@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
@@ -8,25 +10,36 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
     {
         public const int DefaultValueMaxStringLength = 2000;
 
-        private ISerializer _serializer;
+        private IFormatter _formatter;
         private int? _valueMaxStringLength;
 
         public AspNetMvcTracingOptions()
         {
-            _serializer = new NewtonsoftJsonSerializer();
+            _formatter = new NewtonsoftJsonFormatter();
             _valueMaxStringLength = DefaultValueMaxStringLength;
         }
 
-        public ISerializer Serializer
+        public IFormatter Formatter
         {
-            get => _serializer;
-            set => _serializer = Guard.NotNull(value, nameof(Serializer));
+            get => _formatter;
+            set => _formatter = Guard.NotNull(value, nameof(Formatter));
         }
         
         public int? ValueMaxStringLength
         {
             get => _valueMaxStringLength;
             set => _valueMaxStringLength = Guard.NotNegative(value, nameof(ValueMaxStringLength));
+        }
+
+        internal ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
+        {
+            return Formatter.FormatAsync(value, this, cancellationToken);
+        }
+
+        internal void Configure(AspNetMvcTracingOptions options)
+        {
+            Formatter = options.Formatter;
+            ValueMaxStringLength = options.ValueMaxStringLength;
         }
     }
 }

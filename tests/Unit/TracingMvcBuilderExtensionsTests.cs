@@ -27,7 +27,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             // assert
             var provider = _services.BuildServiceProvider();
 
-            var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcRequestTracingOptions>>();
+            var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>();
             Assert.NotNull(requestTracingOptions);
 
             var mvcOptions = provider.GetRequiredService<IOptions<MvcOptions>>().Value;
@@ -40,22 +40,22 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void AddRequestTracing_Options()
         {
             // arrange
-            var serializer = Mock.Of<ISerializer>();
+            var formatter = Mock.Of<IFormatter>();
             var valueMaxStringLength = 1000;
 
             // act
             _mvcBuilder.AddRequestTracing(
                 tracing =>
                 {
-                    tracing.Serializer = serializer;
+                    tracing.Formatter = formatter;
                     tracing.ValueMaxStringLength = valueMaxStringLength;
                 });
 
             // assert
             var provider = _services.BuildServiceProvider();
 
-            var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcRequestTracingOptions>>().Value;
-            Assert.Same(serializer, requestTracingOptions.Serializer);
+            var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>().Value;
+            Assert.Same(formatter, requestTracingOptions.Formatter);
             Assert.Equal(valueMaxStringLength, requestTracingOptions.ValueMaxStringLength);
         }
 
@@ -68,7 +68,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
             // assert
             var provider = _services.BuildServiceProvider();
 
-            var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcResponseTracingOptions>>();
+            var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>();
             Assert.NotNull(responseTracingOptions);
 
             var mvcOptions = provider.GetRequiredService<IOptions<MvcOptions>>().Value;
@@ -81,22 +81,22 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void AddResponseTracing_Options()
         {
             // arrange
-            var serializer = Mock.Of<ISerializer>();
+            var formatter = Mock.Of<IFormatter>();
             var valueMaxStringLength = 1000;
 
             // act
             _mvcBuilder.AddResponseTracing(
                 tracing =>
                 {
-                    tracing.Serializer = serializer;
+                    tracing.Formatter = formatter;
                     tracing.ValueMaxStringLength = valueMaxStringLength;
                 });
 
             // assert
             var provider = _services.BuildServiceProvider();
 
-            var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcResponseTracingOptions>>().Value;
-            Assert.Same(serializer, responseTracingOptions.Serializer);
+            var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>().Value;
+            Assert.Same(formatter, responseTracingOptions.Formatter);
             Assert.Equal(valueMaxStringLength, responseTracingOptions.ValueMaxStringLength);
         }
 
@@ -111,10 +111,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
 
             var mvcOptions = provider.GetRequiredService<IOptions<MvcOptions>>().Value;
 
-            var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcResponseTracingOptions>>();
+            var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>();
             Assert.NotNull(responseTracingOptions);
 
-            var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcRequestTracingOptions>>();
+            var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>();
             Assert.NotNull(requestTracingOptions);
 
             Assert.Contains(mvcOptions.Filters,
@@ -129,26 +129,26 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void AddTracing_Options()
         {
             // arrange
-            var serializer = Mock.Of<ISerializer>();
+            var formatter = Mock.Of<IFormatter>();
             var valueMaxStringLength = 1000;
 
             // act
             _mvcBuilder.AddTracing(
                 tracing =>
                 {
-                    tracing.Serializer = serializer;
+                    tracing.Formatter = formatter;
                     tracing.ValueMaxStringLength = valueMaxStringLength;
                 });
 
             // assert
             var provider = _services.BuildServiceProvider();
 
-            var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcResponseTracingOptions>>().Value;
-            Assert.Same(serializer, requestTracingOptions.Serializer);
+            var requestTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>().Value;
+            Assert.Same(formatter, requestTracingOptions.Formatter);
             Assert.Equal(valueMaxStringLength, requestTracingOptions.ValueMaxStringLength);
 
-            var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcRequestTracingOptions>>().Value;
-            Assert.Same(serializer, responseTracingOptions.Serializer);
+            var responseTracingOptions = provider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>().Value;
+            Assert.Same(formatter, responseTracingOptions.Formatter);
             Assert.Equal(valueMaxStringLength, responseTracingOptions.ValueMaxStringLength);
         }
     }
