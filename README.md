@@ -36,7 +36,7 @@ public class Startup
                 .AddTracing(options =>
                 {
                     options.ValueMaxStringLength = 50;
-                    options.Serializer = new SystemTextJsonSerializer
+                    options.Formatter = new SystemTextJsonFormatter
                     {
                         Options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
                         {
@@ -51,6 +51,10 @@ public class Startup
     }
 }
 ```
+
+## MaskedSerialization
+
+Masked serialization package [Byndyusoft.MaskedSerialization](https://github.com/Byndyusoft/Byndyusoft.MaskedSerialization) is used to hide sensitive data. Is it implemented in [NewtonsoftJsonFormatter.cs](https://github.com/Byndyusoft/Byndyusoft.AspNetCore.Instrumentation.Tracing/blob/master/src/Byndyusoft.AspNetCore.Instrumentation.Tracing/Serialization/Json/NewtonsoftJsonFormatter.cs) class.
 
 # Contributing
 
