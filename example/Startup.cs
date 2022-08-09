@@ -1,7 +1,10 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Services;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +28,20 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers()
-                .AddTracing(options => { options.ValueMaxStringLength = 50; });
+                .AddTracing(options =>
+                {
+                    options.ValueMaxStringLength = 50;
+                    options.Formatter = new SystemTextJsonFormatter
+                    {
+                        Options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                        {
+                            Converters =
+                            {
+                                new JsonStringEnumConverter()
+                            }
+                        }
+                    };
+                });
 
             services.AddSingleton<IService, Service>();
 
@@ -49,7 +65,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                             options.Filter = context => context.Request.Path.StartsWithSegments("/swagger") == false;
                         })
                     .AddConsoleExporter()
-                    .AddJaegerExporter(jaeger => { Configuration.GetSection("Jaeger").Bind(jaeger); });
+                    .AddJaegerExporter(Configuration.GetSection("Jaeger").Bind);
             });
         }
 

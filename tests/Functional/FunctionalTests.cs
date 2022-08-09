@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -24,7 +25,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
         protected override void ConfigureMvc(IMvcCoreBuilder builder)
         {
             builder.AddTracing(
-                tracing => { tracing.JsonSerializerOptions = _jsonSerializerOptions; });
+                tracing =>
+                {
+                    tracing.Formatter = new SystemTextJsonFormatter
+                    {
+                        Options = _jsonSerializerOptions
+                    };
+                });
 
             builder.Services.AddOpenTelemetryTracing(tracing =>
             {
@@ -44,8 +51,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             // act
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/msgpack"));
-            await Client.PostAsJsonAsync("test/echo", param);
-
+            var responseMessage = await Client.PostAsJsonAsync("test/echo", param);
+            responseMessage.EnsureSuccessStatusCode();
+            
             // assert
             Assert.NotNull(_activity);
             var activity = _activity!;
