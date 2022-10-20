@@ -62,8 +62,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             foreach (var actionParameter in context.ActionDescriptor.Parameters)
             {
-                if (actionParameter.BindingInfo.BindingSource == BindingSource.Services ||
-                    actionParameter.BindingInfo.BindingSource == BindingSource.Special)
+                if (actionParameter.BindingInfo?.BindingSource == BindingSource.Services ||
+                    actionParameter.BindingInfo?.BindingSource == BindingSource.Special)
                     continue;
 
                 var name = actionParameter.Name;

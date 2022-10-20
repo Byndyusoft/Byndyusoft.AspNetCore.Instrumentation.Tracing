@@ -19,7 +19,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         public FunctionalTests()
         {
-            _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeLowerCase;
+            _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
         }
 
         protected override void ConfigureMvc(IMvcCoreBuilder builder)

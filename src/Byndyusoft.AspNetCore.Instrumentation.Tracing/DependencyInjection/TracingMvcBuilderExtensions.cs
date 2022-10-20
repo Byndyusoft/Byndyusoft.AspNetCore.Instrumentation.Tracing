@@ -2,16 +2,13 @@
 
 using System;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing;
-using Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    ///     Extension methods for adding MessagePack formatters to MVC.
+    ///     Extension methods for adding Tracing to MVC.
     /// </summary>
     public static class TracingMvcBuilderExtensions
     {
@@ -21,12 +18,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(builder, nameof(builder));
 
-            var options = new AspNetMvcTracingOptions();
-            configure?.Invoke(options);
-
             return builder
-                .AddRequestTracing(c => c.Configure(options))
-                .AddResponseTracing(c => c.Configure(options));
+                .AddRequestTracing(configure)
+                .AddResponseTracing(configure);
         }
 
         /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
@@ -35,12 +29,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(builder, nameof(builder));
 
-            var options = new AspNetMvcTracingOptions();
-            configure?.Invoke(options);
-
             return builder
-                .AddRequestTracing(c => c.Configure(options))
-                .AddResponseTracing(c => c.Configure(options));
+                .AddRequestTracing(configure)
+                .AddResponseTracing(configure);
         }
 
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
@@ -49,10 +40,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(builder, nameof(builder));
 
-            if (configure != null) builder.Services.Configure(configure);
+            builder.Services.AddRequestTracingCore(configure);
 
-            builder.Services.TryAddEnumerable(
-                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
             return builder;
         }
 
@@ -62,10 +51,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(builder, nameof(builder));
 
-            if (configure != null) builder.Services.Configure(configure);
+            builder.Services.AddRequestTracingCore(configure);
 
-            builder.Services.TryAddEnumerable(
-                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, RequestTracingMvcOptionsSetup>());
             return builder;
         }
 
@@ -75,10 +62,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(builder, nameof(builder));
 
-            if (configure != null) builder.Services.Configure(configure);
+            builder.Services.AddResponseTracingCore(configure);
 
-            builder.Services.TryAddEnumerable(
-                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
             return builder;
         }
 
@@ -88,11 +73,37 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.NotNull(builder, nameof(builder));
 
-            if (configure != null) builder.Services.Configure(configure);
+            builder.Services.AddResponseTracingCore(configure);
 
-            builder.Services.TryAddEnumerable(
-                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, ResponseTracingMvcOptionsSetup>());
             return builder;
+        }
+
+        private static void AddResponseTracingCore(this IServiceCollection services,
+            Action<AspNetMvcTracingOptions>? configure)
+        {
+            if (configure != null)
+            {
+                services.Configure(configure);
+            }
+
+            services.PostConfigure<MvcOptions>(options =>
+            {
+                options.Filters.Add<AspNetMvcResponseTracingFilter>();
+            });
+        }
+
+        private static void AddRequestTracingCore(this IServiceCollection services,
+            Action<AspNetMvcTracingOptions>? configure)
+        {
+            if (configure != null)
+            {
+                services.Configure(configure);
+            }
+
+            services.PostConfigure<MvcOptions>(options =>
+            {
+                options.Filters.Add<AspNetMvcRequestTracingFilter>();
+            });
         }
     }
 }
