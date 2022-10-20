@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    ///     Extension methods for adding MessagePack formatters to MVC.
+    ///     Extension methods for adding Tracing to MVC.
     /// </summary>
     public static class TracingMvcBuilderExtensions
     {
