@@ -67,9 +67,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                     continue;
 
                 var name = actionParameter.Name;
-                var value = context.ActionArguments[actionParameter.Name];
-
-                yield return (name, value);
+                if (context.ActionArguments.TryGetValue(actionParameter.Name, out var value))
+                {
+                    yield return (name, value);
+                }
             }
         }
     }
