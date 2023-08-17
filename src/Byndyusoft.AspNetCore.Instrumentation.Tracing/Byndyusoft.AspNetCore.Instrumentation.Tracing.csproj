@@ -37,4 +37,8 @@
 	  <PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="2.1.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Enrichers\" />
+	</ItemGroup>
+
 </Project>

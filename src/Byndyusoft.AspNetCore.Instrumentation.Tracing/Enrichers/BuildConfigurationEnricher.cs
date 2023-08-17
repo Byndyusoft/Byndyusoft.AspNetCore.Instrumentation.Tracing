@@ -1,36 +1,29 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Http;
 
-namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
+namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Enrichers
 {
-    public class BuildConfigurationTracingFilter : IAsyncActionFilter
+    public class BuildConfigurationEnricher : IHttpRequestEnricher
     {
         private static readonly TextInfo TextInfo = new CultureInfo("en-US", false).TextInfo;
         private readonly Dictionary<string, string> _buildConfigurations;
 
-        public BuildConfigurationTracingFilter()
+        public BuildConfigurationEnricher()
         {
             _buildConfigurations = CollectionBuildConfigurations();
         }
 
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public void Enrich(Activity activity, HttpRequest httpRequest)
         {
-            var activity = Activity.Current;
-            if (activity != null)
-            {
-                const string tagNamePrefix = "build.";
+            const string tagNamePrefix = "build.";
 
-                foreach (var buildConfigurationValue in _buildConfigurations)
-                    activity.SetTag($"{tagNamePrefix}{buildConfigurationValue.Key}", buildConfigurationValue.Value);
-            }
-
-            await next();
+            foreach (var buildConfigurationValue in _buildConfigurations)
+                activity.SetTag($"{tagNamePrefix}{buildConfigurationValue.Key}", buildConfigurationValue.Value);
         }
 
         private static Dictionary<string, string> CollectionBuildConfigurations()
