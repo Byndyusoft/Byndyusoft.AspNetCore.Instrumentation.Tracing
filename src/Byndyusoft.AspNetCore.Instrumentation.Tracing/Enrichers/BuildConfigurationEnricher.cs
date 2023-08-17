@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Enrichers.Interfaces;
 using Microsoft.AspNetCore.Http;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Enrichers

@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 
-namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Enrichers
+namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Enrichers.Interfaces
 {
     public interface IHttpRequestEnricher
     {

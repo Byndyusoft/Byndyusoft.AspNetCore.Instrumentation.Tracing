@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<IsPackable>true</IsPackable>
-		<TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netcoreapp3.1;net7.0</TargetFrameworks>
 		<RootNamespace>Byndyusoft.AspNetCore.Instrumentation.Tracing</RootNamespace>
 		<Version>0.3.1</Version>
 		<PackageId>Byndyusoft.AspNetCore.Instrumentation.Tracing</PackageId>
@@ -24,8 +24,8 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
-		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
+	<ItemGroup Condition="'$(TargetFramework)' != 'net7.0'">
+		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -35,10 +35,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="2.1.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Enrichers\" />
+	  <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.14" />
 	</ItemGroup>
 
 </Project>
