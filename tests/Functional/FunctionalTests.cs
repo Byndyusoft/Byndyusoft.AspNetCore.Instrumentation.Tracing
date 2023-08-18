@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
@@ -33,12 +34,16 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                     };
                 });
 
-            builder.Services.AddOpenTelemetryTracing(tracing =>
+            builder.Services.AddOpenTelemetry().WithTracing(tracing =>
             {
                 tracing
                     .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("service"))
                     .AddAspNetCoreInstrumentation(
-                        options => { options.Enrich += (activity, _, _) => _activity = activity; });
+                        options =>
+                        {
+                            options.EnrichWithHttpRequest = (activity, _) => _activity = activity;
+                            options.WithDefaultEnricher();
+                        });
             });
         }
 

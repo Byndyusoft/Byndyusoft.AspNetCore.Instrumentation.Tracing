@@ -8,7 +8,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection
         public static HttpRequestEnricherBuilder WithEnricher(this AspNetCoreInstrumentationOptions options)
         {
             var builder = new HttpRequestEnricherBuilder();
-            options.EnrichWithHttpRequest = (activity, request) => builder.Enrich(activity, request);
+            options.EnrichWithHttpRequest += (activity, request) => builder.Enrich(activity, request);
             return builder;
         }
 

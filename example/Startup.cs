@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Services;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 using Microsoft.AspNetCore.Builder;
@@ -54,15 +55,17 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                 if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddOpenTelemetryTracing(builder =>
+            services.AddOpenTelemetry().WithTracing(builder =>
             {
+                var serviceName = Configuration.GetValue<string>("Jaeger:ServiceName");
                 builder
                     .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                        .AddService(Configuration.GetValue<string>("Jaeger:ServiceName")))
+                        .AddService(serviceName))
                     .AddAspNetCoreInstrumentation(
                         options =>
                         {
                             options.Filter = context => context.Request.Path.StartsWithSegments("/swagger") == false;
+                            options.WithDefaultEnricher();
                         })
                     .AddConsoleExporter()
                     .AddJaegerExporter(Configuration.GetSection("Jaeger").Bind);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Enrichers.Interfaces;
@@ -12,6 +13,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Enrichers
         public void Add(IHttpRequestEnricher httpRequestEnricher)
         {
             _httpRequestEnrichers.Add(httpRequestEnricher);
+        }
+
+        public void Add(Action<Activity, HttpRequest> customEnrichAction)
+        {
+            Add(new CustomEnricher(customEnrichAction));
         }
 
         public void Enrich(Activity activity, HttpRequest httpRequest)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -55,10 +55,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Enrichers
 
         private static string EnvironmentKeyToCameCase(string environmentProperty)
         {
-            var keyParts = environmentProperty.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => TextInfo.ToTitleCase(TextInfo.ToLower(x)));
-
-            return string.Join("", keyParts);
+            return TextInfo.ToLower(environmentProperty);
         }
     }
 }
