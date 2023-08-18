@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -16,6 +17,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
     public class FunctionalTests : MvcTestFixture
     {
         private readonly JsonSerializerOptions _jsonSerializerOptions = new();
+        private readonly string _defaultCommitHash = "asdfsa3";
+        private readonly string _defaultBuildVersion = "1.1.7";
         private Activity? _activity;
 
         public FunctionalTests()
@@ -25,6 +28,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         protected override void ConfigureMvc(IMvcCoreBuilder builder)
         {
+            Environment.SetEnvironmentVariable("BUILD_COMMIT_HASH", _defaultCommitHash);
+            Environment.SetEnvironmentVariable("BUILD_BUILD_VERSION", _defaultBuildVersion);
             builder.AddTracing(
                 tracing =>
                 {
@@ -62,6 +67,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             // assert
             Assert.NotNull(_activity);
             var activity = _activity!;
+
+            {
+                var commitHashTag = Assert.Single(activity.Tags, tag => tag.Key == "build.commit_hash");
+                Assert.Equal(_defaultCommitHash, commitHashTag.Value);
+
+                var commitBuildVersion = Assert.Single(activity.Tags, tag => tag.Key == "build.build_version");
+                Assert.Equal(_defaultBuildVersion, commitBuildVersion.Value);
+            }
 
             {
                 var request = Assert.Single(activity.Events, evnt => evnt.Name == "Action executing");
