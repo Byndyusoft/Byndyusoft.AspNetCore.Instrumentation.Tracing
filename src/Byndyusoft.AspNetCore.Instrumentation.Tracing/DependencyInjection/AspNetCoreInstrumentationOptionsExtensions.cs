@@ -5,16 +5,16 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.DependencyInjection
 {
     public static class AspNetCoreInstrumentationOptionsExtensions
     {
-        public static HttpRequestEnricherBuilder WithEnricher(this AspNetCoreInstrumentationOptions options)
+        public static HttpRequestEnricherBuilder BuildEnricher(this AspNetCoreInstrumentationOptions options)
         {
             var builder = new HttpRequestEnricherBuilder();
             options.EnrichWithHttpRequest += (activity, request) => builder.Enrich(activity, request);
             return builder;
         }
 
-        public static HttpRequestEnricherBuilder WithDefaultEnricher(this AspNetCoreInstrumentationOptions options)
+        public static HttpRequestEnricherBuilder BuildDefaultEnricher(this AspNetCoreInstrumentationOptions options)
         {
-            return WithEnricher(options)
+            return BuildEnricher(options)
                 .WithDefaultConfiguration();
         }
     }

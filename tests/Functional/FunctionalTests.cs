@@ -47,7 +47,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                         options =>
                         {
                             options.EnrichWithHttpRequest = (activity, _) => _activity = activity;
-                            options.WithDefaultEnricher();
+                            options.BuildDefaultEnricher();
                         });
             });
         }

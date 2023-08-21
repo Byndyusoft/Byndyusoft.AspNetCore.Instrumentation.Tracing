@@ -65,7 +65,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                         options =>
                         {
                             options.Filter = context => context.Request.Path.StartsWithSegments("/swagger") == false;
-                            options.WithDefaultEnricher();
+                            options.BuildDefaultEnricher();
                         })
                     .AddConsoleExporter()
                     .AddJaegerExporter(Configuration.GetSection("Jaeger").Bind);
