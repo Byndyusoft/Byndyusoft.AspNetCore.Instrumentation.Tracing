@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.MaskedSerialization.Newtonsoft.Extensions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json

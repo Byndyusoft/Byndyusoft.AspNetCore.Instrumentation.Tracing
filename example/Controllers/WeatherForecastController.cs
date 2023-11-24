@@ -55,13 +55,5 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Controllers
 
             return File(stream, file.ContentType);
         }
-
-        [HttpGet("mvc")]
-        public IActionResult Mvc()
-        {
-            var forecast = _service.GetWeatherForecasts().ToArray();
-
-            return View(forecast);
-        }
     }
 }
