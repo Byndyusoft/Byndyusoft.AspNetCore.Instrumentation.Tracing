@@ -33,13 +33,17 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                     };
                 });
 
-            builder.Services.AddOpenTelemetryTracing(tracing =>
-            {
-                tracing
-                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("service"))
-                    .AddAspNetCoreInstrumentation(
-                        options => { options.Enrich += (activity, _, _) => _activity = activity; });
-            });
+            builder.Services.AddOpenTelemetry()
+                .WithTracing(tracing =>
+                {
+                    tracing
+                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("service"))
+                        .AddAspNetCoreInstrumentation(
+                            options =>
+                            {
+                                options.EnrichWithHttpRequest += (activity, _) => _activity = activity;
+                            });
+                });
         }
 
         [Fact]

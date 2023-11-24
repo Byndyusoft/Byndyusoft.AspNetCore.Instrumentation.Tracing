@@ -54,19 +54,21 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                 if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddOpenTelemetryTracing(builder =>
-            {
-                builder
-                    .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                        .AddService(Configuration.GetValue<string>("Jaeger:ServiceName")))
-                    .AddAspNetCoreInstrumentation(
-                        options =>
-                        {
-                            options.Filter = context => context.Request.Path.StartsWithSegments("/swagger") == false;
-                        })
-                    .AddConsoleExporter()
-                    .AddJaegerExporter(Configuration.GetSection("Jaeger").Bind);
-            });
+            services.AddOpenTelemetry()
+                .WithTracing(builder =>
+                {
+                    builder
+                        .SetResourceBuilder(ResourceBuilder.CreateDefault()
+                            .AddService(Configuration.GetValue<string>("Jaeger:ServiceName")))
+                        .AddAspNetCoreInstrumentation(
+                            options =>
+                            {
+                                options.Filter = context =>
+                                    context.Request.Path.StartsWithSegments("/swagger") == false;
+                            })
+                        .AddConsoleExporter()
+                        .AddOtlpExporter(Configuration.GetSection("Jaeger").Bind);
+                });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
