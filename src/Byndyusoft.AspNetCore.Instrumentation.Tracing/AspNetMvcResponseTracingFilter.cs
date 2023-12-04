@@ -33,7 +33,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             await next();
 
-            if (Activity.Current == null)
+            if (_options.LogResponseInTraces || Activity.Current == null)
                 return;
 
             var tags = new ActivityTagsCollection

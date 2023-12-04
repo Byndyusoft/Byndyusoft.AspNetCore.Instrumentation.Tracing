@@ -35,6 +35,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         public bool TagRequestParamsInTraces { get; set; } = false;
 
+        public bool LogResponseInTraces { get; set; } = true;
+
         internal ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
         {
             return Formatter.FormatAsync(value, this, cancellationToken);
