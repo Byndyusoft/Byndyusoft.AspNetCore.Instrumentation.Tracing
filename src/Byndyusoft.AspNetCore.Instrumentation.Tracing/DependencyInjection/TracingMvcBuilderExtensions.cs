@@ -34,6 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddResponseTracing(configure);
         }
 
+        // TODO Убрать раздельную настройку, реализовать через Options
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
         public static IMvcBuilder AddRequestTracing(this IMvcBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
@@ -46,7 +47,8 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
-        public static IMvcCoreBuilder AddRequestTracing(this IMvcCoreBuilder builder,
+        public static IMvcCoreBuilder AddRequestTracing(
+            this IMvcCoreBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
@@ -57,7 +59,8 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddResponseTracing(this IMvcBuilder builder,
+        public static IMvcBuilder AddResponseTracing(
+            this IMvcBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
@@ -68,7 +71,8 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
-        public static IMvcCoreBuilder AddResponseTracing(this IMvcCoreBuilder builder,
+        public static IMvcCoreBuilder AddResponseTracing(
+            this IMvcCoreBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
@@ -78,7 +82,8 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        private static void AddResponseTracingCore(this IServiceCollection services,
+        private static void AddResponseTracingCore(
+            this IServiceCollection services,
             Action<AspNetMvcTracingOptions>? configure)
         {
             if (configure != null)
@@ -92,7 +97,8 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        private static void AddRequestTracingCore(this IServiceCollection services,
+        private static void AddRequestTracingCore(
+            this IServiceCollection services,
             Action<AspNetMvcTracingOptions>? configure)
         {
             if (configure != null)
