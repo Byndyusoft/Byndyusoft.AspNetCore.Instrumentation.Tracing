@@ -47,7 +47,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         private bool IsProcessingNeeded()
         {
-            return _options.LogRequestInTraces || _options.TagRequestParamsInTraces;
+            return _options.LogRequest || _options.TagRequestParams;
         }
 
         private async Task LogRequestAsync(
@@ -55,7 +55,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             RequestContext context,
             CancellationToken cancellationToken)
         {
-            if (_options.LogRequestInTraces == false)
+            if (_options.LogRequest == false)
                 return;
 
             var tags = new ActivityTagsCollection
@@ -82,7 +82,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             RequestContextParameter[] requestContextParameters,
             CancellationToken cancellationToken)
         {
-            if (_options.TagRequestParamsInTraces == false)
+            if (_options.TagRequestParams == false)
                 return;
 
             // TODO Нужно добавить тэгирование части простых свойств

@@ -31,11 +31,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             set => _valueMaxStringLength = Guard.NotNegative(value, nameof(ValueMaxStringLength));
         }
 
-        public bool LogRequestInTraces { get; set; } = true;
+        public bool LogRequest { get; set; } = true;
 
-        public bool TagRequestParamsInTraces { get; set; } = false;
+        public bool TagRequestParams { get; set; } = false;
 
-        public bool LogResponseInTraces { get; set; } = true;
+        public bool LogResponse { get; set; } = true;
 
         internal ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
         {
@@ -46,9 +46,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             Formatter = options.Formatter;
             ValueMaxStringLength = options.ValueMaxStringLength;
-            LogRequestInTraces = options.LogRequestInTraces;
-            TagRequestParamsInTraces = options.TagRequestParamsInTraces;
-            LogResponseInTraces = options.LogResponseInTraces;
+            LogRequest = options.LogRequest;
+            TagRequestParams = options.TagRequestParams;
+            LogResponse = options.LogResponse;
         }
     }
 }
