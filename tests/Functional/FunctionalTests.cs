@@ -63,7 +63,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             var activity = _activity!;
 
             {
-                var request = Assert.Single(activity.Events, evnt => evnt.Name == "Action executing");
+                var request = Assert.Single(activity.Events, @event => @event.Name == "Action executing");
 
                 var acceptHeader = Assert.Single(request.Tags, tag => tag.Key == "http.request.header.accept");
                 Assert.Equal(new[] {"application/json, application/msgpack"}, acceptHeader.Value);
@@ -77,7 +77,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             }
 
             {
-                var response = Assert.Single(activity.Events, evnt => evnt.Name == "Action executed");
+                var response = Assert.Single(activity.Events, @event => @event.Name == "Action executed");
 
                 var contentTypeHeader =
                     Assert.Single(response.Tags, tag => tag.Key == "http.response.header.content_type");

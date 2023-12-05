@@ -49,8 +49,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 tags.Add("http.response.body", json);
             }
 
-            var evnt = new ActivityEvent("Action executed", tags: tags);
-            Activity.Current.AddEvent(evnt);
+            var @event = new ActivityEvent("Action executed", tags: tags);
+            Activity.Current.AddEvent(@event);
         }
     }
 }
