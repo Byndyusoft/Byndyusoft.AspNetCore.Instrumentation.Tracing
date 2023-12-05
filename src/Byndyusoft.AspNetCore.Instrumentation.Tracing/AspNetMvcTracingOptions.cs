@@ -46,6 +46,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             Formatter = options.Formatter;
             ValueMaxStringLength = options.ValueMaxStringLength;
+            LogRequestInTraces = options.LogRequestInTraces;
+            TagRequestParamsInTraces = options.TagRequestParamsInTraces;
+            LogResponseInTraces = options.LogResponseInTraces;
         }
     }
 }
