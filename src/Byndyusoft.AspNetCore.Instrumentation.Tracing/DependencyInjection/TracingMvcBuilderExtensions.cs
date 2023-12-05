@@ -34,9 +34,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddResponseTracing(configure);
         }
 
-        // TODO Убрать раздельную настройку, реализовать через Options
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddRequestTracing(this IMvcBuilder builder,
+        private static IMvcBuilder AddRequestTracing(this IMvcBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
@@ -47,7 +46,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
-        public static IMvcCoreBuilder AddRequestTracing(
+        private static IMvcCoreBuilder AddRequestTracing(
             this IMvcCoreBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {
@@ -59,7 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddResponseTracing(
+        private static IMvcBuilder AddResponseTracing(
             this IMvcBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {
@@ -71,7 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
-        public static IMvcCoreBuilder AddResponseTracing(
+        private static IMvcCoreBuilder AddResponseTracing(
             this IMvcCoreBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {

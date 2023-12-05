@@ -34,9 +34,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             ActionExecutionDelegate next,
             CancellationToken cancellationToken)
         {
-
             var activity = Activity.Current;
-            if (activity != null)
+            if (activity != null && IsProcessingNeeded())
             {
                 var requestContext = BuildRequestContext(context);
                 await LogRequestAsync(activity, requestContext, cancellationToken);
@@ -44,6 +43,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             }
 
             await next();
+        }
+
+        private bool IsProcessingNeeded()
+        {
+            return _options.LogRequestInTraces || _options.TagRequestParamsInTraces;
         }
 
         private async Task LogRequestAsync(
