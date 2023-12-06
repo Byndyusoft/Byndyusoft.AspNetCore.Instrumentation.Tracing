@@ -65,15 +65,15 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             Assert.NotNull(_activity);
             var activity = _activity!;
 
-            AssertRequestEvent(activity, param);
-            AssertResponseEvent(activity, param);
+            AssertRequestEventDoesNotExist(activity);
+            AssertResponseEventDoesNotExist(activity);
         }
 
         [Fact]
-        public async Task Test_LogRequestIsTurnedOff_ExpectedOnlyResponseEvent()
+        public async Task Test_LogResponseInTracesIsTurnedOn_ExpectedResponseEvent()
         {
             // arrange
-            _configureTest = options => options.LogRequest = false;
+            _configureTest = options => options.LogResponseInTrace = true;
             var param = new { Key = "key", Value = "value" };
 
             // act
@@ -91,10 +91,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
         }
 
         [Fact]
-        public async Task Test_LogResponseIsTurnedOff_ExpectedOnlyRequestEvent()
+        public async Task Test_LogRequestIsTurnedOn_ExpectedRequestEvent()
         {
             // arrange
-            _configureTest = options => options.LogResponse = false;
+            _configureTest = options => options.LogRequestInTrace = true;
             var param = new { Key = "key", Value = "value" };
 
             // act

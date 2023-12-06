@@ -2,21 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
     public class AspNetMvcRequestTracingFilter : IAsyncActionFilter
     {
+        private readonly ILogger<AspNetMvcRequestTracingFilter> _logger;
         private readonly AspNetMvcTracingOptions _options;
 
-        public AspNetMvcRequestTracingFilter(IOptions<AspNetMvcTracingOptions> options)
+        public AspNetMvcRequestTracingFilter(
+            ILogger<AspNetMvcRequestTracingFilter> logger,
+            IOptions<AspNetMvcTracingOptions> options)
         {
+            _logger = logger;
             Guard.NotNull(options, nameof(options));
 
             _options = options.Value;
@@ -35,54 +42,67 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             CancellationToken cancellationToken)
         {
             var activity = Activity.Current;
-            if (activity != null && IsProcessingNeeded())
+            if (IsProcessingNeeded(activity))
             {
                 var requestContext = BuildRequestContext(context);
-                await LogRequestAsync(activity, requestContext, cancellationToken);
+                await LogRequestInTraceAsync(activity, requestContext, cancellationToken);
+                await LogRequestInLogAsync(requestContext, cancellationToken);
                 await TagRequestParamsInTracesAsync(activity, requestContext.Parameters, cancellationToken);
             }
 
             await next();
         }
 
-        private bool IsProcessingNeeded()
+        private bool IsProcessingNeeded(Activity? activity)
         {
-            return _options.LogRequest || _options.TagRequestParams;
+            if (_options.LogRequestInLog)
+                return true;
+
+            return activity is not null && (_options.LogRequestInTrace || _options.TagRequestParamsInTrace);
         }
 
-        private async Task LogRequestAsync(
-            Activity activity,
+        private async Task LogRequestInTraceAsync(
+            Activity? activity,
             RequestContext context,
             CancellationToken cancellationToken)
         {
-            if (_options.LogRequest == false)
+            if (activity is null || _options.LogRequestInTrace == false)
                 return;
 
-            var tags = new ActivityTagsCollection
+            var tags = new ActivityTagsCollection();
+            await foreach (var telemetryItem in context.GetFormattedItemsAsync(_options, cancellationToken))
             {
-                { "http.request.header.accept", context.AcceptFormats },
-                { "http.request.header.content_type", context.ContentType },
-                { "http.request.header.content_length", context.ContentLength }
-            };
-
-            foreach (var parameter in context.Parameters)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                var json = await _options.FormatAsync(parameter.Value, cancellationToken)
-                    .ConfigureAwait(false);
-                tags.Add($"http.request.params.{parameter.Name}", json);
+                tags.Add(telemetryItem.Name, telemetryItem.FormattedValue);
             }
 
             var @event = new ActivityEvent("Action executing", tags: tags);
             activity.AddEvent(@event);
         }
 
+        private async Task LogRequestInLogAsync(
+            RequestContext context,
+            CancellationToken cancellationToken)
+        {
+            if (_options.LogRequestInLog == false)
+                return;
+
+            var messageBuilder = new StringBuilder("Action executing: ");
+            var parameters = new List<object?>();
+            await foreach (var telemetryItem in context.GetFormattedItemsAsync(_options, cancellationToken))
+            {
+                messageBuilder.Append($"{telemetryItem.Description} = {{{telemetryItem.Name}}}");
+                parameters.Add(telemetryItem.FormattedValue);
+            }
+
+            _logger.LogInformation(messageBuilder.ToString(), parameters);
+        }
+
         private async Task TagRequestParamsInTracesAsync(
-            Activity activity,
+            Activity? activity,
             RequestContextParameter[] requestContextParameters,
             CancellationToken cancellationToken)
         {
-            if (_options.TagRequestParams == false)
+            if (activity is null || _options.TagRequestParamsInTrace == false)
                 return;
 
             // TODO Нужно добавить тэгирование части простых свойств
@@ -138,6 +158,22 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 ContentType = contentType;
                 ContentLength = contentLength;
                 Parameters = parameters;
+            }
+
+            public async IAsyncEnumerable<FormattedContextItem> GetFormattedItemsAsync(
+                AspNetMvcTracingOptions options, 
+                [EnumeratorCancellation] CancellationToken cancellationToken)
+            {
+                yield return new FormattedContextItem("http.request.header.accept", AcceptFormats, "Accept");
+                yield return new FormattedContextItem("http.request.header.content_type", ContentType, "ContentType");
+                yield return new FormattedContextItem("http.request.header.content_length", ContentLength, "ContentLength");
+
+                foreach (var parameter in Parameters)
+                {
+                    var json = await options.FormatAsync(parameter.Value, cancellationToken)
+                        .ConfigureAwait(false);
+                    yield return new FormattedContextItem($"http.request.params.{parameter.Name}", json, parameter.Name);
+                }
             }
         }
 
