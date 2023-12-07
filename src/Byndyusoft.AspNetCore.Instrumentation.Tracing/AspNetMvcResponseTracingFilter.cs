@@ -79,11 +79,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             var parameters = new List<object?>();
             await foreach (var telemetryItem in context.GetFormattedItemsAsync(_options, cancellationToken))
             {
-                messageBuilder.Append($"{telemetryItem.Description} = {{{telemetryItem.Name}}}");
+                messageBuilder.Append($"{telemetryItem.Description} = {{{telemetryItem.Name}}}; ");
                 parameters.Add(telemetryItem.FormattedValue);
             }
 
-            _logger.LogInformation(messageBuilder.ToString(), parameters);
+            _logger.LogInformation(messageBuilder.ToString(), parameters.ToArray());
         }
 
         private bool IsProcessingNeeded(Activity? activity)
