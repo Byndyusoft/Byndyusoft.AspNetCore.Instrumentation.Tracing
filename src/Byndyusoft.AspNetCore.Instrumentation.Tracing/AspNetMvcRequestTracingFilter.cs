@@ -88,10 +88,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
             var messageBuilder = new StringBuilder("Action executing: ");
             var parameters = new List<object?>();
-            await foreach (var telemetryItem in context.GetFormattedItemsAsync(_options, cancellationToken))
+            await foreach (var formattedContextItem in context.GetFormattedItemsAsync(_options, cancellationToken))
             {
-                messageBuilder.Append($"{telemetryItem.Description} = {{{telemetryItem.Name}}}; ");
-                parameters.Add(telemetryItem.FormattedValue);
+                var itemName = formattedContextItem.Name.Replace('.', '_');
+                messageBuilder.Append($"{formattedContextItem.Description} = {{{itemName}}}; ");
+                parameters.Add(formattedContextItem.FormattedValue);
             }
 
             _logger.LogInformation(messageBuilder.ToString(), parameters.ToArray());
