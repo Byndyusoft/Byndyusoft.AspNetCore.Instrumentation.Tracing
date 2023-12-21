@@ -1,21 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Byndyusoft.Logging.OpenTelemetry" Version="2.0.0" />
-		<PackageReference Include="OpenTelemetry" Version="1.7.0" />
-		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.7.0" />
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Byndyusoft.Logging.OpenTelemetry" Version="2.0.0" />
+    <PackageReference Include="OpenTelemetry" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\src\Byndyusoft.AspNetCore.Instrumentation.Tracing\Byndyusoft.AspNetCore.Instrumentation.Tracing.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference
+      Include="..\src\Byndyusoft.AspNetCore.Instrumentation.Tracing\Byndyusoft.AspNetCore.Instrumentation.Tracing.csproj" />
+  </ItemGroup>
 
 </Project>

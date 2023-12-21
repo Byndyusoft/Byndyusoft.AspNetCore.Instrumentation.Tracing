@@ -75,8 +75,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         {
             public int Id { get; set; }
 
-            [Masked]
-            public string Password { get; set; } = default!;
+            [Masked] public string Password { get; set; } = default!;
         }
     }
 }

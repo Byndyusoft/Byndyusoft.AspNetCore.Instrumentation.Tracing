@@ -24,7 +24,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             get => _formatter;
             set => _formatter = Guard.NotNull(value, nameof(Formatter));
         }
-        
+
         public int? ValueMaxStringLength
         {
             get => _valueMaxStringLength;

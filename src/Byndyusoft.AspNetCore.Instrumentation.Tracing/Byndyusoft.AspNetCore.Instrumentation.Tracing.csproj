@@ -1,42 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<IsPackable>true</IsPackable>
-		<TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
-		<RootNamespace>Byndyusoft.AspNetCore.Instrumentation.Tracing</RootNamespace>
-		<Version>0.3.1</Version>
-		<PackageId>Byndyusoft.AspNetCore.Instrumentation.Tracing</PackageId>
-		<Title>Byndyusoft.AspNetCore.Instrumentation.Tracing</Title>
-		<Authors>Byndyusoft</Authors>
-		<Description>ASP.NET Core MVC tracing.</Description>
-		<PackageTags>Byndyusoft;AspNet;AspNetCore;Tracing</PackageTags>
-		<RepositoryUrl>https://github.com/Byndyusoft.AspNetCore.Instrumentation.Tracing</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageIcon>icon.png</PackageIcon>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	</PropertyGroup>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
+    <RootNamespace>Byndyusoft.AspNetCore.Instrumentation.Tracing</RootNamespace>
+    <Version>0.3.1</Version>
+    <PackageId>Byndyusoft.AspNetCore.Instrumentation.Tracing</PackageId>
+    <Title>Byndyusoft.AspNetCore.Instrumentation.Tracing</Title>
+    <Authors>Byndyusoft</Authors>
+    <Description>ASP.NET Core MVC tracing.</Description>
+    <PackageTags>Byndyusoft;AspNet;AspNetCore;Tracing</PackageTags>
+    <RepositoryUrl>https://github.com/Byndyusoft.AspNetCore.Instrumentation.Tracing</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<None Include="..\..\icon.png" Pack="true" PackagePath="icon.png" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\icon.png" Pack="true" PackagePath="icon.png" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
-		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.0" />
-	</ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.0" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<PackageReference Include="System.Text.Json" Version="4.6.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-	</ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Text.Json" Version="4.6.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="2.1.0" />
-	  <PackageReference Include="Byndyusoft.Telemetry.Logging" Version="0.0.3-tags-v0.0.3-alpha" />
-	  <PackageReference Include="Byndyusoft.Telemetry.OpenTelemetry" Version="0.0.3-tags-v0.0.3-alpha" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="2.1.0" />
+    <PackageReference Include="Byndyusoft.Telemetry.Logging" Version="0.0.3-tags-v0.0.3-alpha" />
+    <PackageReference Include="Byndyusoft.Telemetry.OpenTelemetry" Version="0.0.3-tags-v0.0.3-alpha" />
+  </ItemGroup>
 
 </Project>

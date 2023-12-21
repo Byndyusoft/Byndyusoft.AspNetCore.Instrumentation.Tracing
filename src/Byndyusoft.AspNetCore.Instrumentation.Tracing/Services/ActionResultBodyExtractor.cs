@@ -13,7 +13,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Services
                 ObjectResult objectResult => (objectResult.Value, true),
                 JsonResult jsonResult => (jsonResult.Value, true),
                 ContentResult contentResult => (contentResult.Content, true),
-                ViewResult viewResult => (new {viewResult.Model, viewResult.ViewData, viewResult.TempData}, true),
+                ViewResult viewResult => (new { viewResult.Model, viewResult.ViewData, viewResult.TempData }, true),
                 _ => (null, false)
             };
 

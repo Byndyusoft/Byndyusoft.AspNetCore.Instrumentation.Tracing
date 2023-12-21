@@ -166,16 +166,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         private class RequestContext
         {
-            public string[] AcceptFormats { get; }
-
-            public string? ContentType { get; }
-
-            public long? ContentLength { get; }
-
-            public RequestContextParameter[] Parameters { get; }
-
-            public string Url { get; }
-
             public RequestContext(string[] acceptFormats,
                 string? contentType,
                 long? contentLength,
@@ -189,34 +179,46 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 Url = url;
             }
 
+            public string[] AcceptFormats { get; }
+
+            public string? ContentType { get; }
+
+            public long? ContentLength { get; }
+
+            public RequestContextParameter[] Parameters { get; }
+
+            public string Url { get; }
+
             public async IAsyncEnumerable<FormattedContextItem> GetFormattedItemsAsync(
-                AspNetMvcTracingOptions options, 
+                AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
                 yield return new FormattedContextItem("http.request.header.accept", AcceptFormats, "Accept");
                 yield return new FormattedContextItem("http.request.header.content_type", ContentType, "ContentType");
-                yield return new FormattedContextItem("http.request.header.content_length", ContentLength, "ContentLength");
+                yield return new FormattedContextItem("http.request.header.content_length", ContentLength,
+                    "ContentLength");
 
                 foreach (var parameter in Parameters)
                 {
                     var json = await options.FormatAsync(parameter.Value, cancellationToken)
                         .ConfigureAwait(false);
-                    yield return new FormattedContextItem($"http.request.params.{parameter.Name}", json, parameter.Name);
+                    yield return new FormattedContextItem($"http.request.params.{parameter.Name}", json,
+                        parameter.Name);
                 }
             }
         }
 
         private class RequestContextParameter
         {
-            public string Name { get; }
-
-            public object? Value { get; }
-
             public RequestContextParameter(string name, object? value)
             {
                 Name = name;
                 Value = value;
             }
+
+            public string Name { get; }
+
+            public object? Value { get; }
         }
     }
 }

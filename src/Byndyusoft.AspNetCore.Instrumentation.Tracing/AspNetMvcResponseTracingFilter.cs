@@ -110,12 +110,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         private class ResponseContext
         {
-            public string ContentType { get; }
-
-            public long? ContentLength { get; }
-
-            public object? Body { get; }
-
             public ResponseContext(
                 string contentType,
                 long? contentLength,
@@ -126,12 +120,19 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 Body = body;
             }
 
+            public string ContentType { get; }
+
+            public long? ContentLength { get; }
+
+            public object? Body { get; }
+
             public async IAsyncEnumerable<FormattedContextItem> GetFormattedItemsAsync(
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
                 yield return new FormattedContextItem("http.response.header.content_type", ContentType, "ContentType");
-                yield return new FormattedContextItem("http.response.header.content_length", ContentLength, "ContentLength");
+                yield return new FormattedContextItem("http.response.header.content_length", ContentLength,
+                    "ContentLength");
 
                 var bodyJson = "<empty>";
                 if (Body is not null)
@@ -139,6 +140,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                     bodyJson = await options.FormatAsync(Body, cancellationToken)
                         .ConfigureAwait(false);
                 }
+
                 yield return new FormattedContextItem("http.response.body", bodyJson, "Body");
             }
         }

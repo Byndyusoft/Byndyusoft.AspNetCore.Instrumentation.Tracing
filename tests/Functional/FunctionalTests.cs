@@ -42,10 +42,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                     tracerProviderBuilder
                         .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("service"))
                         .AddAspNetCoreInstrumentation(
-                            options =>
-                            {
-                                options.EnrichWithHttpRequest += (activity, _) => _activity = activity;
-                            });
+                            options => { options.EnrichWithHttpRequest += (activity, _) => _activity = activity; });
                 });
         }
 

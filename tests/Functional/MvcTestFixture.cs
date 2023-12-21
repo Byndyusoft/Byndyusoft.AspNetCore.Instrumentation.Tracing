@@ -37,7 +37,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             {
                 if (_client == null)
                 {
-                    _client = new HttpClient {BaseAddress = new Uri(_url)};
+                    _client = new HttpClient { BaseAddress = new Uri(_url) };
                     ConfigureHttpClient(_client);
                 }
 
@@ -80,7 +80,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
         {
             var listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start();
-            var port = ((IPEndPoint) listener.LocalEndpoint).Port;
+            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
             listener.Stop();
             return port;
         }

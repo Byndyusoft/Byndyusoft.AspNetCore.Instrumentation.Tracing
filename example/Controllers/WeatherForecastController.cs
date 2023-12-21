@@ -21,7 +21,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get([FromServices] IService service, [FromRoute] int id, [FromQuery] string name, CancellationToken cancellationToken)
+        public IActionResult Get([FromServices] IService service, [FromRoute] int id, [FromQuery] string name,
+            CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
