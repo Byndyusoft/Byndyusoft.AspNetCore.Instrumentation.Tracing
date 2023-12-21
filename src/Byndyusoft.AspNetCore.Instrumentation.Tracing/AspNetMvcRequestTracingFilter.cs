@@ -48,10 +48,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             if (IsProcessingNeeded(activity))
             {
                 var requestContext = BuildRequestContext(context);
-                await LogRequestInTraceAsync(activity, requestContext, cancellationToken);
-                await LogRequestInLogAsync(requestContext, cancellationToken);
                 EnrichLogsWithHttpInfo(requestContext);
                 EnrichWithParams(activity, requestContext.Parameters);
+                await LogRequestInTraceAsync(activity, requestContext, cancellationToken);
+                await LogRequestInLogAsync(requestContext, cancellationToken);
             }
 
             await next();

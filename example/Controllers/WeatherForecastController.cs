@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Models;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Services;
+using Byndyusoft.Telemetry.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Controllers
 {
@@ -13,20 +15,29 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : Controller
     {
+        private readonly ILogger<WeatherForecastController> _logger;
         private readonly IService _service;
 
-        public WeatherForecastController(IService service)
+        public WeatherForecastController(
+            ILogger<WeatherForecastController> logger,
+            IService service)
         {
+            _logger = logger;
             _service = service;
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get([FromServices] IService service, [FromRoute] int id, [FromQuery] string name,
+        public IActionResult Get(
+            [FromServices] IService service,
+            [FromRoute] int id,
+            [FromQuery] string name,
             CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var forecast = service.GetWeatherForecasts().ToArray();
+
+            _logger.LogInformation("Weather Got");
 
             return Ok(forecast);
         }

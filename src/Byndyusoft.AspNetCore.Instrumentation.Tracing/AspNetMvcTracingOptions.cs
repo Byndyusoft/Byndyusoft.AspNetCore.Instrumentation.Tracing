@@ -35,11 +35,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         public bool LogRequestInLog { get; set; } = true;
 
-        public bool TagRequestParamsInTrace { get; set; } = false;
+        public bool TagRequestParamsInTrace { get; set; } = true;
 
-        public bool EnrichLogsWithParams { get; set; } = false;
+        public bool EnrichLogsWithParams { get; set; } = true;
 
-        public bool EnrichLogsWithHttpInfo { get; set; } = false;
+        public bool EnrichLogsWithHttpInfo { get; set; } = true;
 
         public bool LogResponseInTrace { get; set; } = false;
 
