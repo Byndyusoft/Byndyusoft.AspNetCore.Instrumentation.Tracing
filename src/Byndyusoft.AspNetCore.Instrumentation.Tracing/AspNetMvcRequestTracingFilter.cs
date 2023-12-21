@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,6 +6,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
+using Byndyusoft.Telemetry;
+using Byndyusoft.Telemetry.Logging;
+using Byndyusoft.Telemetry.OpenTelemetry;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
@@ -47,7 +50,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 var requestContext = BuildRequestContext(context);
                 await LogRequestInTraceAsync(activity, requestContext, cancellationToken);
                 await LogRequestInLogAsync(requestContext, cancellationToken);
-                await TagRequestParamsInTracesAsync(activity, requestContext.Parameters, cancellationToken);
+                EnrichLogsWithHttpInfo(requestContext);
+                EnrichWithParams(activity, requestContext.Parameters);
             }
 
             await next();
@@ -55,7 +59,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         private bool IsProcessingNeeded(Activity? activity)
         {
-            if (_options.LogRequestInLog)
+            if (_options.LogRequestInLog || _options.EnrichLogsWithParams || _options.EnrichLogsWithHttpInfo)
                 return true;
 
             return activity is not null && (_options.LogRequestInTrace || _options.TagRequestParamsInTrace);
@@ -98,16 +102,35 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             _logger.LogInformation(messageBuilder.ToString(), parameters.ToArray());
         }
 
-        private async Task TagRequestParamsInTracesAsync(
-            Activity? activity,
-            RequestContextParameter[] requestContextParameters,
-            CancellationToken cancellationToken)
+        private void EnrichLogsWithHttpInfo(
+            RequestContext context)
         {
-            if (activity is null || _options.TagRequestParamsInTrace == false)
+            if (_options.EnrichLogsWithHttpInfo == false)
                 return;
 
-            // TODO Нужно добавить тэгирование части простых свойств
-            throw new InvalidOperationException();
+            LogPropertyDataAccessor.AddTelemetryItem("http.request.url", context.Url);
+        }
+
+        private void EnrichWithParams(
+            Activity? activity,
+            RequestContextParameter[] requestContextParameters)
+        {
+            // TODO Перенести в DI или сделать static
+            var collector = new ObjectTelemetryItemsCollector();
+
+            if (_options.EnrichLogsWithParams == false &&
+                (activity is null || _options.TagRequestParamsInTrace == false))
+                return;
+
+            var telemetryItems = requestContextParameters
+                .SelectMany(i => collector.Collect(i.Name, i.Value, "http.request.params."))
+                .ToArray();
+
+            if (_options.EnrichLogsWithParams)
+                LogPropertyDataAccessor.AddTelemetryItems(telemetryItems);
+
+            if (_options.TagRequestParamsInTrace)
+                ActivityTagEnricher.Enrich(telemetryItems);
         }
 
         private static RequestContext BuildRequestContext(ActionExecutingContext context)
@@ -115,12 +138,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             var acceptFormats = context.HttpContext.Request.Headers["accept"].ToArray();
             var contentType = context.HttpContext.Request.ContentType;
             var contentLength = context.HttpContext.Request.ContentLength;
+            var displayUrl = context.HttpContext.Request.GetDisplayUrl();
 
             return new RequestContext(
                 acceptFormats,
                 contentType,
                 contentLength,
-                GetParameters(context).ToArray());
+                GetParameters(context).ToArray(),
+                displayUrl);
         }
 
         private static IEnumerable<RequestContextParameter> GetParameters(ActionExecutingContext context)
@@ -143,22 +168,25 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             public string[] AcceptFormats { get; }
 
-            public string ContentType { get; }
+            public string? ContentType { get; }
 
             public long? ContentLength { get; }
 
             public RequestContextParameter[] Parameters { get; }
 
-            public RequestContext(
-                string[] acceptFormats,
-                string contentType,
+            public string Url { get; }
+
+            public RequestContext(string[] acceptFormats,
+                string? contentType,
                 long? contentLength,
-                RequestContextParameter[] parameters)
+                RequestContextParameter[] parameters,
+                string url)
             {
                 AcceptFormats = acceptFormats;
                 ContentType = contentType;
                 ContentLength = contentLength;
                 Parameters = parameters;
+                Url = url;
             }
 
             public async IAsyncEnumerable<FormattedContextItem> GetFormattedItemsAsync(

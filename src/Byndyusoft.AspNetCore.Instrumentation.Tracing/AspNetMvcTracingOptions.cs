@@ -37,6 +37,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         public bool TagRequestParamsInTrace { get; set; } = false;
 
+        public bool EnrichLogsWithParams { get; set; } = false;
+
+        public bool EnrichLogsWithHttpInfo { get; set; } = false;
+
         public bool LogResponseInTrace { get; set; } = false;
 
         public bool LogResponseInLog { get; set; } = true;
@@ -53,6 +57,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             LogRequestInTrace = options.LogRequestInTrace;
             LogRequestInLog = options.LogRequestInLog;
             TagRequestParamsInTrace = options.TagRequestParamsInTrace;
+            EnrichLogsWithParams = options.EnrichLogsWithParams;
+            EnrichLogsWithHttpInfo = options.EnrichLogsWithHttpInfo;
             LogResponseInTrace = options.LogResponseInTrace;
             LogResponseInLog = options.LogResponseInLog;
         }
