@@ -1,6 +1,5 @@
 using Byndyusoft.Logging.Configuration;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Configuration;
@@ -17,11 +16,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
         private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .ConfigureServices(services => services.AddStaticTelemetryItemCollector()
-                    .WithBuildConfiguration()
-                    .WithAspNetCoreEnvironment()
-                    .WithServiceName("Test Service")
-                    .WithApplicationVersion("1.0.0"))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

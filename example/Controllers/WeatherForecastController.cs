@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Models;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Services;
-using Byndyusoft.Telemetry.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

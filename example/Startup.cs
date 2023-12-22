@@ -71,6 +71,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                         .AddConsoleExporter()
                         .AddOtlpExporter(Configuration.GetSection("Jaeger").Bind);
                 });
+
+            services.ConfigureStaticTelemetryItemCollector()
+                .WithBuildConfiguration()
+                .WithAspNetCoreEnvironment()
+                .WithServiceName("Test Service")
+                .WithApplicationVersion("1.0.0");
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
