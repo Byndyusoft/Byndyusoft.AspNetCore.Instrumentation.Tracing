@@ -60,7 +60,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                     builder
                         .SetResourceBuilder(ResourceBuilder
                             .CreateDefault()
-                            .AddService(Configuration.GetValue<string>("Jaeger:ServiceName"))
+                            .AddService(Configuration.GetValue<string>("Jaeger:ServiceName")!)
                             .AddStaticTelemetryItems())
                         .AddAspNetCoreInstrumentation(
                             options =>

@@ -15,14 +15,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Controllers
     public class WeatherForecastController : Controller
     {
         private readonly ILogger<WeatherForecastController> _logger;
-        private readonly IService _service;
 
         public WeatherForecastController(
-            ILogger<WeatherForecastController> logger,
-            IService service)
+            ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
-            _service = service;
         }
 
         [HttpGet("{id}")]

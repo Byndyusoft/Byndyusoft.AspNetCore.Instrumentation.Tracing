@@ -17,6 +17,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             _formatter = new NewtonsoftJsonFormatter();
             _valueMaxStringLength = DefaultValueMaxStringLength;
+
+            LogRequestInTrace = false;
+            LogRequestInLog = true;
+            TagRequestParamsInTrace = true;
+            EnrichLogsWithParams = true;
+            EnrichLogsWithHttpInfo = true;
+            LogResponseInTrace = false;
+            LogResponseInLog = true;
         }
 
         public IFormatter Formatter
@@ -31,19 +39,19 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             set => _valueMaxStringLength = Guard.NotNegative(value, nameof(ValueMaxStringLength));
         }
 
-        public bool LogRequestInTrace { get; set; } = false;
+        public bool LogRequestInTrace { get; set; }
 
-        public bool LogRequestInLog { get; set; } = true;
+        public bool LogRequestInLog { get; set; }
 
-        public bool TagRequestParamsInTrace { get; set; } = true;
+        public bool TagRequestParamsInTrace { get; set; }
 
-        public bool EnrichLogsWithParams { get; set; } = true;
+        public bool EnrichLogsWithParams { get; set; }
 
-        public bool EnrichLogsWithHttpInfo { get; set; } = true;
+        public bool EnrichLogsWithHttpInfo { get; set; }
 
-        public bool LogResponseInTrace { get; set; } = false;
+        public bool LogResponseInTrace { get; set; }
 
-        public bool LogResponseInLog { get; set; } = true;
+        public bool LogResponseInLog { get; set; }
 
         internal ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
         {
