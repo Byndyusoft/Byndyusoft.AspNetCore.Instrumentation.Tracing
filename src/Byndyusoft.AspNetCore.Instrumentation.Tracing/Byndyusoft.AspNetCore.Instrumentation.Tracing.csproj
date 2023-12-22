@@ -35,8 +35,8 @@
 
   <ItemGroup>
     <PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="2.1.0" />
-    <PackageReference Include="Byndyusoft.Telemetry.Logging" Version="0.0.3-tags-v0.0.3-alpha" />
-    <PackageReference Include="Byndyusoft.Telemetry.OpenTelemetry" Version="0.0.3-tags-v0.0.3-alpha" />
+    <PackageReference Include="Byndyusoft.Telemetry.Logging" Version="0.0.3-tags-v0.0.4-alpha" />
+    <PackageReference Include="Byndyusoft.Telemetry.OpenTelemetry" Version="0.0.3-tags-v0.0.4-alpha" />
   </ItemGroup>
 
 </Project>

@@ -1,18 +1,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Services;
+using Byndyusoft.Telemetry.Logging;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
-    public class AspNetMvcResponseTracingFilter : IAsyncResultFilter
+    public class AspNetMvcResponseTracingFilter : IAsyncResourceFilter
     {
         private readonly ILogger<AspNetMvcResponseTracingFilter> _logger;
         private readonly AspNetMvcTracingOptions _options;
@@ -27,25 +29,22 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             _options = options.Value;
         }
 
-        public Task OnResultExecutionAsync(
-            ResultExecutingContext context,
-            ResultExecutionDelegate next)
+        public Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
-            return OnResultExecutionAsync(context, next, context.HttpContext.RequestAborted);
+            return OnResourceExecutionAsync(next, context.HttpContext.RequestAborted);
         }
 
-        private async Task OnResultExecutionAsync(
-            ResultExecutingContext context,
-            ResultExecutionDelegate next,
-            CancellationToken cancellationToken)
+        private async Task OnResourceExecutionAsync(ResourceExecutionDelegate next, CancellationToken cancellationToken)
         {
-            await next();
+            LogPropertyDataAccessor.InitAsyncContext();
+
+            var resourceExecutedContext = await next();
 
             var activity = Activity.Current;
             if (IsProcessingNeeded(activity) == false)
                 return;
 
-            var responseContext = BuildResponseContext(context);
+            var responseContext = BuildResponseContext(resourceExecutedContext);
             await LogResponseInTraceAsync(activity, responseContext, cancellationToken);
             await LogResponseInLogAsync(responseContext, cancellationToken);
         }
@@ -95,7 +94,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             return activity is not null && _options.LogResponseInTrace;
         }
 
-        private static ResponseContext BuildResponseContext(ResultExecutingContext context)
+        private static ResponseContext BuildResponseContext(ResourceExecutedContext context)
         {
             var contentType = context.HttpContext.Response.ContentType;
             var contentLength = context.HttpContext.Response.ContentLength;

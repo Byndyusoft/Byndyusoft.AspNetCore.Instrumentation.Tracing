@@ -115,15 +115,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             Activity? activity,
             RequestContextParameter[] requestContextParameters)
         {
-            // TODO Перенести в DI или сделать static
-            var collector = new ObjectTelemetryItemsCollector();
-
             if (_options.EnrichLogsWithParams == false &&
                 (activity is null || _options.TagRequestParamsInTrace == false))
                 return;
 
             var telemetryItems = requestContextParameters
-                .SelectMany(i => collector.Collect(i.Name, i.Value, "http.request.params."))
+                .SelectMany(i => ObjectTelemetryItemsCollector.Collect(i.Name, i.Value, "http.request.params."))
                 .ToArray();
 
             if (_options.EnrichLogsWithParams)
