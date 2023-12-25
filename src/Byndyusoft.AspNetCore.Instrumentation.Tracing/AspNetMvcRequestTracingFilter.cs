@@ -127,7 +127,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 LogPropertyDataAccessor.AddTelemetryItems(telemetryItems);
 
             if (_options.TagRequestParamsInTrace)
-                ActivityTagEnricher.Enrich(telemetryItems);
+                ActivityTagEnricher.Enrich(activity, telemetryItems);
         }
 
         private static RequestContext BuildRequestContext(ActionExecutingContext context)
