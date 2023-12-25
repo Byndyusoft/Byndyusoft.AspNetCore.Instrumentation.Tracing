@@ -126,7 +126,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             if (_options.EnrichLogsWithParams)
                 LogPropertyDataAccessor.AddTelemetryItems(telemetryItems);
 
-            if (_options.TagRequestParamsInTrace)
+            if (activity is not null && _options.TagRequestParamsInTrace)
                 ActivityTagEnricher.Enrich(activity, telemetryItems);
         }
 
