@@ -191,8 +191,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
                 yield return new FormattedContextItem("http.request.header.accept", AcceptFormats, "Accept");
-                yield return new FormattedContextItem("http.request.header.content_type", ContentType, "ContentType");
-                yield return new FormattedContextItem("http.request.header.content_length", ContentLength,
+                yield return new FormattedContextItem("http.request.header.content.type", ContentType, "ContentType");
+                yield return new FormattedContextItem("http.request.header.content.length", ContentLength,
                     "ContentLength");
 
                 foreach (var parameter in Parameters)
