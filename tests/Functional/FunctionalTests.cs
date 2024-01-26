@@ -133,7 +133,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             Assert.Equal(new[] { "application/json, application/msgpack" }, acceptHeader.Value);
 
             var contentTypeHeader =
-                Assert.Single(request.Tags, tag => tag.Key == "http.request.header.content_type");
+                Assert.Single(request.Tags, tag => tag.Key == "http.request.header.content.type");
             Assert.Equal("application/json; charset=utf-8", contentTypeHeader.Value);
 
             var model = Assert.Single(request.Tags, tag => tag.Key == "http.request.params.model");
