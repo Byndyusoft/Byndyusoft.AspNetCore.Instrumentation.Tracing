@@ -15,7 +15,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         public AspNetMvcTracingOptions()
         {
-            _formatter = new NewtonsoftJsonFormatter();
+            _formatter = new SystemTextJsonFormatter();
             _valueMaxStringLength = DefaultValueMaxStringLength;
 
             LogRequestInTrace = false;
