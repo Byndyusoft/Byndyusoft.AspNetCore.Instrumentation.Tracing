@@ -1,3 +1,4 @@
+using Byndyusoft.Logging.Builders;
 using Byndyusoft.Logging.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -20,11 +21,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                 {
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseSerilog((context, configuration) => configuration
-                        .UseConsoleWriterSettings()
-                        .OverrideDefaultLoggers()
-                        .ReadFrom.Configuration(context.Configuration)
+                        .UseDefaultSettings(context.Configuration)
                         .UseOpenTelemetryTraces()
-                        .WriteToOpenTelemetry()
+                        .WriteToOpenTelemetry(activityEventBuilder: StructuredActivityEventBuilder.Instance)
                         .Enrich.WithPropertyDataAccessor()
                         .Enrich.WithStaticTelemetryItems());
                 });

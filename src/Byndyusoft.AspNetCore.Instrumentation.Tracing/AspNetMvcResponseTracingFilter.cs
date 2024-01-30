@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Services;
+using Byndyusoft.Logging;
+using Byndyusoft.Logging.Extensions;
 using Byndyusoft.Telemetry.Logging;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
@@ -57,9 +59,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 return;
 
             var tags = new ActivityTagsCollection();
-            await foreach (var telemetryItem in context.GetFormattedItemsAsync(_options, cancellationToken))
+            await foreach (var telemetryItem in context.EnumerateEventItemsAsync(_options, cancellationToken))
             {
-                tags.Add(telemetryItem.Name, telemetryItem.FormattedValue);
+                tags.Add(telemetryItem.Name, telemetryItem.Value);
             }
 
             var @event = new ActivityEvent("Action executed", tags: tags);
@@ -73,16 +75,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             if (_options.LogRequestInLog == false)
                 return;
 
-            var messageBuilder = new StringBuilder("Action executed: ");
-            var parameters = new List<object?>();
-            await foreach (var formattedContextItem in context.GetFormattedItemsAsync(_options, cancellationToken))
-            {
-                var itemName = formattedContextItem.Name.Replace('.', '_');
-                messageBuilder.Append($"{formattedContextItem.Description} = {{{itemName}}}; ");
-                parameters.Add(formattedContextItem.FormattedValue);
-            }
-
-            _logger.LogInformation(messageBuilder.ToString(), parameters.ToArray());
+            var eventItems = await context
+                .EnumerateEventItemsAsync(_options, cancellationToken)
+                .ToArrayAsync(cancellationToken);
+            _logger.LogStructuredActivityEvent("Action executed", eventItems);
         }
 
         private bool IsProcessingNeeded(Activity? activity)
@@ -124,12 +120,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
             public object? Body { get; }
 
-            public async IAsyncEnumerable<FormattedContextItem> GetFormattedItemsAsync(
+            public async IAsyncEnumerable<StructuredActivityEventItem> EnumerateEventItemsAsync(
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                yield return new FormattedContextItem("http.response.header.content_type", ContentType, "ContentType");
-                yield return new FormattedContextItem("http.response.header.content_length", ContentLength,
+                yield return new StructuredActivityEventItem("http.response.header.content_type", ContentType, "ContentType");
+                yield return new StructuredActivityEventItem("http.response.header.content_length", ContentLength,
                     "ContentLength");
 
                 var bodyJson = "<empty>";
@@ -139,7 +135,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                         .ConfigureAwait(false);
                 }
 
-                yield return new FormattedContextItem("http.response.body", bodyJson, "Body");
+                yield return new StructuredActivityEventItem("http.response.body", bodyJson, "Body");
             }
         }
     }

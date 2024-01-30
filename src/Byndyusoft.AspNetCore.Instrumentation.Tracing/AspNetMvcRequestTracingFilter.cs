@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
+using Byndyusoft.Logging;
+using Byndyusoft.Logging.Extensions;
 using Byndyusoft.Telemetry;
 using Byndyusoft.Telemetry.Logging;
 using Byndyusoft.Telemetry.OpenTelemetry;
@@ -74,9 +75,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 return;
 
             var tags = new ActivityTagsCollection();
-            await foreach (var telemetryItem in context.GetFormattedItemsAsync(_options, cancellationToken))
+            await foreach (var telemetryItem in context.EnumerateEventItemsAsync(_options, cancellationToken))
             {
-                tags.Add(telemetryItem.Name, telemetryItem.FormattedValue);
+                tags.Add(telemetryItem.Name, telemetryItem.Value);
             }
 
             var @event = new ActivityEvent("Action executing", tags: tags);
@@ -90,16 +91,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             if (_options.LogRequestInLog == false)
                 return;
 
-            var messageBuilder = new StringBuilder("Action executing: ");
-            var parameters = new List<object?>();
-            await foreach (var formattedContextItem in context.GetFormattedItemsAsync(_options, cancellationToken))
-            {
-                var itemName = formattedContextItem.Name.Replace('.', '_');
-                messageBuilder.Append($"{formattedContextItem.Description} = {{{itemName}}}; ");
-                parameters.Add(formattedContextItem.FormattedValue);
-            }
-
-            _logger.LogInformation(messageBuilder.ToString(), parameters.ToArray());
+            var eventItems = await context
+                .EnumerateEventItemsAsync(_options, cancellationToken)
+                .ToArrayAsync(cancellationToken);
+            _logger.LogStructuredActivityEvent("Action executing", eventItems);
         }
 
         private void EnrichLogsWithHttpInfo(
@@ -186,20 +181,20 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
             public string Url { get; }
 
-            public async IAsyncEnumerable<FormattedContextItem> GetFormattedItemsAsync(
+            public async IAsyncEnumerable<StructuredActivityEventItem> EnumerateEventItemsAsync(
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                yield return new FormattedContextItem("http.request.header.accept", AcceptFormats, "Accept");
-                yield return new FormattedContextItem("http.request.header.content.type", ContentType, "ContentType");
-                yield return new FormattedContextItem("http.request.header.content.length", ContentLength,
+                yield return new StructuredActivityEventItem("http.request.header.accept", AcceptFormats, "Accept");
+                yield return new StructuredActivityEventItem("http.request.header.content.type", ContentType, "ContentType");
+                yield return new StructuredActivityEventItem("http.request.header.content.length", ContentLength,
                     "ContentLength");
 
                 foreach (var parameter in Parameters)
                 {
                     var json = await options.FormatAsync(parameter.Value, cancellationToken)
                         .ConfigureAwait(false);
-                    yield return new FormattedContextItem($"http.request.params.{parameter.Name}", json,
+                    yield return new StructuredActivityEventItem($"http.request.params.{parameter.Name}", json,
                         parameter.Name);
                 }
             }
