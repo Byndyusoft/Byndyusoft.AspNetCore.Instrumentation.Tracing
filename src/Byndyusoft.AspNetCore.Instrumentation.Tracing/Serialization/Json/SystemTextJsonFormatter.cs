@@ -9,7 +9,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json
 {
     public class SystemTextJsonFormatter : FormatterBase
     {
-        private JsonSerializerOptions _options = new();
+        private JsonSerializerOptions _options;
 
         public SystemTextJsonFormatter()
         {
