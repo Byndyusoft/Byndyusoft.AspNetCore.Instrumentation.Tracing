@@ -124,9 +124,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                yield return new StructuredActivityEventItem("http.response.header.content_type", ContentType, "ContentType");
-                yield return new StructuredActivityEventItem("http.response.header.content_length", ContentLength,
-                    "ContentLength");
+                yield return new StructuredActivityEventItem("http.response.header.content_type", ContentType);
+                yield return new StructuredActivityEventItem("http.response.header.content_length", ContentLength);
 
                 var bodyJson = "<empty>";
                 if (Body is not null)
@@ -135,7 +134,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                         .ConfigureAwait(false);
                 }
 
-                yield return new StructuredActivityEventItem("http.response.body", bodyJson, "Body");
+                yield return new StructuredActivityEventItem("http.response.body", bodyJson);
             }
         }
     }

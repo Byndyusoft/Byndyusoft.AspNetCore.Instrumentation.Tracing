@@ -185,17 +185,15 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                yield return new StructuredActivityEventItem("http.request.header.accept", AcceptFormats, "Accept");
-                yield return new StructuredActivityEventItem("http.request.header.content.type", ContentType, "ContentType");
-                yield return new StructuredActivityEventItem("http.request.header.content.length", ContentLength,
-                    "ContentLength");
+                yield return new StructuredActivityEventItem("http.request.header.accept", AcceptFormats);
+                yield return new StructuredActivityEventItem("http.request.header.content.type", ContentType);
+                yield return new StructuredActivityEventItem("http.request.header.content.length", ContentLength);
 
                 foreach (var parameter in Parameters)
                 {
                     var json = await options.FormatAsync(parameter.Value, cancellationToken)
                         .ConfigureAwait(false);
-                    yield return new StructuredActivityEventItem($"http.request.params.{parameter.Name}", json,
-                        parameter.Name);
+                    yield return new StructuredActivityEventItem($"http.request.params.{parameter.Name}", json);
                 }
             }
         }
