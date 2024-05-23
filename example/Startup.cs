@@ -30,6 +30,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
             services.AddControllers()
                 .AddTracing(options =>
                 {
+                    options.LogRequestInTrace = false;
+                    options.LogRequestInLog = true;
+                    options.TagRequestParamsInTrace = true;
+                    options.EnrichLogsWithParams = true;
+                    options.EnrichLogsWithHttpInfo = true;
+                    options.LogResponseInTrace = false;
+                    options.LogResponseInLog = true;
                     options.ValueMaxStringLength = 50;
                     options.Formatter = new SystemTextJsonFormatter
                     {
