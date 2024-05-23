@@ -35,6 +35,13 @@ public class Startup
         services.AddControllers()
                 .AddTracing(options =>
                 {
+                    options.LogRequestInTrace = false;
+                    options.LogRequestInLog = true;
+                    options.TagRequestParamsInTrace = true;
+                    options.EnrichLogsWithParams = true;
+                    options.EnrichLogsWithHttpInfo = true;
+                    options.LogResponseInTrace = false;
+                    options.LogResponseInLog = true;
                     options.ValueMaxStringLength = 50;
                     options.Formatter = new SystemTextJsonFormatter
                     {
@@ -51,6 +58,17 @@ public class Startup
     }
 }
 ```
+
+There are some default option parameters:
+1. LogRequestInTrace — if true then http requests will be added to trace events. Default: false.
+2. LogRequestInLog — if true then http requests will be logged. Default: true.
+3. LogResponseInTrace — if true then http responses will be added to trace events. Default: false.
+4. LogResponseInLog — if true then http responses will be logged. Default: true.
+5. TagRequestParamsInTrace — if true then http request params will be added to trace tags. Default: true. For more detail how params are extracted, refer to [page](https://github.com/Byndyusoft/Byndyusoft.Telemetry#object-telemetry-item-collector).
+6. EnrichLogsWithParams — if true then every log will be enriched with request params during this request. Default: true. For more detail how params are extracted, refer to [page](https://github.com/Byndyusoft/Byndyusoft.Telemetry#object-telemetry-item-collector).
+7. EnrichLogsWithHttpInfo — if true then every log will be enriched with request http info during this request. Default: true.
+8. ValueMaxStringLength — maximum number of serialized request and response body string length. This string will be written to trace events and/or logs. The excess will be trimmed. Default: 2000.
+9. Formatter — it is used to serialize request and response body. Default: [SystemTextJsonFormatter](src/Byndyusoft.AspNetCore.Instrumentation.Tracing/Serialization/Json/SystemTextJsonFormatter.cs).
 
 ## MaskedSerialization
 
