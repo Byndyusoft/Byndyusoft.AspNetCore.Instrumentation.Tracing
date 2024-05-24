@@ -7,13 +7,13 @@ ASP.NET Core MVC tracing.
 
 ## Installing
 
-```shell
+```csharp
 dotnet add package Byndyusoft.AspNetCore.Instrumentation.Tracing
 ```
 
 ## Usages
 
-```shell
+```csharp
 public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
@@ -27,7 +27,7 @@ public class Startup
 
 ## Configuring
 
-```shell
+```csharp
 public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
