@@ -7,7 +7,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="3.0.0" />
-		<PackageReference Include="MSTest.Sdk" Version="3.6.4" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
 		<PackageReference Include="OpenTelemetry" Version="1.10.0" />
 		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.10.0" />
 		<PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.6.0-rc.1" />
