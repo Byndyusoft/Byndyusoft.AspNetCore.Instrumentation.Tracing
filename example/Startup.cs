@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using OpenTelemetry.Extensions.Hosting;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
 {
@@ -54,11 +55,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
                 if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddOpenTelemetryTracing(builder =>
+            var serviceName = Configuration.GetValue<string>("Jaeger:ServiceName");
+            services
+                .AddOpenTelemetry()
+                .ConfigureResource(resource => resource.AddService(serviceName))
+                .WithTracing
+                (builder =>
             {
                 builder
-                    .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                        .AddService(Configuration.GetValue<string>("Jaeger:ServiceName")))
                     .AddAspNetCoreInstrumentation(
                         options =>
                         {
