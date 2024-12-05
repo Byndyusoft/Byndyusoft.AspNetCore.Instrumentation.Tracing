@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Xunit;
-using Yoh.Text.Json.NamingPolicies;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 {
@@ -19,7 +18,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         public FunctionalTests()
         {
-            _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
+            _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower; 
         }
 
         protected override void ConfigureMvc(IMvcCoreBuilder builder)
