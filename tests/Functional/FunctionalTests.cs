@@ -30,17 +30,20 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                     {
                         Options = _jsonSerializerOptions
                     };
-                });
+                }
+            );
 
             builder.Services
                 .AddOpenTelemetry()
                 .ConfigureResource(resource => resource.AddService("service"))
-                .WithTracing(tracing =>
-            {
-                tracing
-                    .AddAspNetCoreInstrumentation(
-                        options => { options.EnrichWithHttpRequest = (activity, _) => _activity = activity; });
-            });
+                .WithTracing(
+                    tracing =>
+                    {
+                        tracing
+                            .AddAspNetCoreInstrumentation(
+                                options => { options.EnrichWithHttpRequest = (activity, _) => _activity = activity; });
+                    }
+                );
         }
 
         [Fact]

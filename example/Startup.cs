@@ -59,18 +59,18 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example
             services
                 .AddOpenTelemetry()
                 .ConfigureResource(resource => resource.AddService(serviceName))
-                .WithTracing
-                (builder =>
-            {
-                builder
-                    .AddAspNetCoreInstrumentation(
-                        options =>
-                        {
-                            options.Filter = context => context.Request.Path.StartsWithSegments("/swagger") == false;
-                        })
-                    .AddConsoleExporter()
-                    .AddJaegerExporter(Configuration.GetSection("Jaeger").Bind);
-            });
+                .WithTracing(
+                    builder =>
+                    {
+                        builder
+                            .AddAspNetCoreInstrumentation(
+                                options =>
+                                {
+                                    options.Filter = context =>
+                                        context.Request.Path.StartsWithSegments("/swagger") == false;
+                                })
+                            .AddJaegerExporter(Configuration.GetSection("Jaeger").Bind);
+                    });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
