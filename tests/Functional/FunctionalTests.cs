@@ -41,7 +41,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                     {
                         tracing
                             .AddAspNetCoreInstrumentation(
-                                options => { options.EnrichWithHttpRequest = (activity, _) => _activity = activity; });
+                                options =>
+                                {
+                                    options.EnrichWithHttpRequest =
+                                        (activity, _) => _activity = activity;
+                                }
+                            );
                     }
                 );
         }
