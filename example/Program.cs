@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Services;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -87,6 +88,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ConsumedMessageLoggingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI(
     c =>
