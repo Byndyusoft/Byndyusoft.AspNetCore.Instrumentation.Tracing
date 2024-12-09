@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Xunit;
-using Yoh.Text.Json.NamingPolicies;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 {
@@ -19,7 +18,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         public FunctionalTests()
         {
-            _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
+            _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower; 
         }
 
         protected override void ConfigureMvc(IMvcCoreBuilder builder)
@@ -31,15 +30,25 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                     {
                         Options = _jsonSerializerOptions
                     };
-                });
+                }
+            );
 
-            builder.Services.AddOpenTelemetryTracing(tracing =>
-            {
-                tracing
-                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("service"))
-                    .AddAspNetCoreInstrumentation(
-                        options => { options.Enrich += (activity, _, _) => _activity = activity; });
-            });
+            builder.Services
+                .AddOpenTelemetry()
+                .ConfigureResource(resource => resource.AddService("service"))
+                .WithTracing(
+                    tracing =>
+                    {
+                        tracing
+                            .AddAspNetCoreInstrumentation(
+                                options =>
+                                {
+                                    options.EnrichWithHttpRequest =
+                                        (activity, _) => _activity = activity;
+                                }
+                            );
+                    }
+                );
         }
 
         [Fact]
