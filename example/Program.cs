@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Services;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -81,12 +82,14 @@ services
         }
     );
 services.AddMvc();
+services.AddTransient<ConsumedMessageLoggingMiddleware>();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ConsumedMessageLoggingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI(
     c =>
@@ -95,10 +98,5 @@ app.UseSwaggerUI(
     }
 );
 app.UseRouting();
-app.UseEndpoints(
-    endpoints =>
-    {
-        endpoints.MapControllers();
-    }
-);
+app.MapControllers();
 app.Run();
