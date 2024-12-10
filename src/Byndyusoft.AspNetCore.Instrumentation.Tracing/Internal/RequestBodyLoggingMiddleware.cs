@@ -1,5 +1,6 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Byndyusoft.MaskedSerialization.Newtonsoft.Helpers;
@@ -24,20 +25,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            var request = context.Request.Body;
-            var buffSize = 4 * 1024;
-            var buff = new byte[buffSize];
-            var offset = 0;
-            var obj = new List<byte>();
-            while (await request.ReadAsync(buff, offset, buffSize) > 0)
-            {
-                obj.AddRange(buff);
-                offset += buffSize;
-            }
+            var requestBody = context.Request.Body;
+            using var memoryStream = new MemoryStream();
+            await requestBody.CopyToAsync(memoryStream);
+            var str = Encoding.UTF8.GetString(memoryStream.ToArray());
+            var body = JsonConvert.SerializeObject(str, _serializerSettings);
             _logger.LogInformation(
-                "{TraceEventName} Parameters: MessageBody = {MessageBody}",
-                "Consuming message",
-                JsonConvert.SerializeObject(obj, _serializerSettings)
+                "{{\"MessageBody\":{MessageBody}}}",
+                body
             );
             await next(context);
         }

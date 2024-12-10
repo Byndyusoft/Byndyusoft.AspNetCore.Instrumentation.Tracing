@@ -82,6 +82,7 @@ services
         }
     );
 services.AddMvc();
+services.AddTransient<ConsumedMessageLoggingMiddleware>();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
@@ -97,10 +98,5 @@ app.UseSwaggerUI(
     }
 );
 app.UseRouting();
-app.UseEndpoints(
-    endpoints =>
-    {
-        endpoints.MapControllers();
-    }
-);
+app.MapControllers();
 app.Run();
