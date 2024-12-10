@@ -25,6 +25,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            if (context.Request.Method == "GET")
+            {
+                await next(context);
+                return;
+            }
+
             var requestBody = context.Request.Body;
             using var memoryStream = new MemoryStream();
             await requestBody.CopyToAsync(memoryStream);
