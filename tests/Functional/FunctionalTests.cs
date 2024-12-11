@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Xunit;
-using Yoh.Text.Json.NamingPolicies;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 {
@@ -21,29 +20,37 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         public FunctionalTests()
         {
-            _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
+            _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower; 
         }
 
         protected override void ConfigureMvc(IMvcCoreBuilder builder)
         {
             builder.AddTracing(
-                options =>
+                tracing =>
                 {
-                    options.Formatter = new SystemTextJsonFormatter
+                    tracing.Formatter = new SystemTextJsonFormatter
                     {
                         Options = _jsonSerializerOptions
                     };
-                    _configureTest?.Invoke(options);
+                    _configureTest?.Invoke(tracing);
                 });
 
-            builder.Services.AddOpenTelemetry()
-                .WithTracing(tracerProviderBuilder =>
-                {
-                    tracerProviderBuilder
-                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("service"))
-                        .AddAspNetCoreInstrumentation(
-                            options => { options.EnrichWithHttpRequest += (activity, _) => _activity = activity; });
-                });
+            builder.Services
+                .AddOpenTelemetry()
+                .ConfigureResource(resource => resource.AddService("service"))
+                .WithTracing(
+                    tracing =>
+                    {
+                        tracing
+                            .AddAspNetCoreInstrumentation(
+                                options =>
+                                {
+                                    options.EnrichWithHttpRequest +=
+                                        (activity, _) => _activity = activity;
+                                }
+                            );
+                    }
+                );
         }
 
         [Fact]
