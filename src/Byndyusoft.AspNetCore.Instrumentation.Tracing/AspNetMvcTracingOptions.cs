@@ -50,7 +50,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         internal ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
         {
-            return Formatter.FormatAsync(value, this, cancellationToken);
+            return Formatter.FormatAsync(value, ValueMaxStringLength, cancellationToken);
         }
 
         internal void Configure(AspNetMvcTracingOptions options)
