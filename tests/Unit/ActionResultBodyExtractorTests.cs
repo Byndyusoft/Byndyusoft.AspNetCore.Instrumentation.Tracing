@@ -54,7 +54,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void TryExtractBody_ObjectResult()
         {
             // arrange
-            var obj = new {Value = "value"};
+            var obj = new { Value = "value" };
             var actionResult = new ObjectResult(obj);
 
             // act
@@ -69,7 +69,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public void TryExtractBody_JsonResult()
         {
             // arrange
-            var obj = new {Value = "value"};
+            var obj = new { Value = "value" };
             var actionResult = new JsonResult(obj);
 
             // act
@@ -85,7 +85,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         {
             // arrange
             var content = "content";
-            var actionResult = new ContentResult {Content = content};
+            var actionResult = new ContentResult { Content = content };
 
             // act
             var result = ActionResultBodyExtractor.TryExtractBody(actionResult, out var body);

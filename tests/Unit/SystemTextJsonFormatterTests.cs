@@ -11,7 +11,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
         public async Task FormatAsync()
         {
             // arrange
-            var value = new {Key = "key", Value = "value"};
+            var value = new { Key = "key", Value = "value" };
             var formatter = new SystemTextJsonFormatter();
             var options = new AspNetMvcTracingOptions
             {

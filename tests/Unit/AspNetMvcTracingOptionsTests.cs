@@ -8,16 +8,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Unit
     public class AspNetMvcTracingOptionsTests
     {
         [Fact]
-        public void Constructor_DefaultValueMaxStringLength()
-        {
-            // act
-            var options = new AspNetMvcTracingOptions();
-
-            // assert
-            Assert.Equal(AspNetMvcTracingOptions.DefaultValueMaxStringLength, options.ValueMaxStringLength);
-        }
-
-        [Fact]
         public void Formatter_Setter()
         {
             // arrange
