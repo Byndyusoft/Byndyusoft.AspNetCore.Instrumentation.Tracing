@@ -19,7 +19,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         protected MvcTestFixture()
         {
-            _url = $"http://localhost:5005";//{FreeTcpPort()}";
+            _url = $"http://localhost:{FreeTcpPort()}";
             _host =
                 Host.CreateDefaultBuilder()
                     .ConfigureWebHostDefaults(webBuilder =>

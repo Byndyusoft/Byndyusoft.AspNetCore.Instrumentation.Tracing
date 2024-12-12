@@ -1,5 +1,3 @@
-using System.IO;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional.Controllers
