@@ -21,7 +21,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             TagRequestParamsInTrace = true;
             EnrichLogsWithParams = true;
             EnrichLogsWithHttpInfo = true;
-            LogResponseInTrace = false;
             LogResponseInLog = true;
         }
 
@@ -47,8 +46,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         public bool EnrichLogsWithHttpInfo { get; set; }
 
-        public bool LogResponseInTrace { get; set; }
-
         public bool LogResponseInLog { get; set; }
 
         internal ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
@@ -65,7 +62,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             TagRequestParamsInTrace = options.TagRequestParamsInTrace;
             EnrichLogsWithParams = options.EnrichLogsWithParams;
             EnrichLogsWithHttpInfo = options.EnrichLogsWithHttpInfo;
-            LogResponseInTrace = options.LogResponseInTrace;
             LogResponseInLog = options.LogResponseInLog;
         }
     }

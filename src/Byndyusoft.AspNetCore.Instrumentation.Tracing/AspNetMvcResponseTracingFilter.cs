@@ -20,6 +20,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         private readonly ILogger<AspNetMvcResponseTracingFilter> _logger;
         private readonly AspNetMvcTracingOptions _options;
 
+        private const string HeaderContentType = "http.response.header.content.type";
+        private const string HeaderContentLength = "http.response.header.content.length";
+        private const string BodyKey = "http.response.body";
+
         public AspNetMvcResponseTracingFilter(
             ILogger<AspNetMvcResponseTracingFilter> logger,
             IOptions<AspNetMvcTracingOptions> options)
@@ -41,31 +45,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
             var resourceExecutedContext = await next();
 
-            var activity = Activity.Current;
-            if (IsProcessingNeeded(activity) == false)
+            if (_options.LogResponseInLog == false)
                 return;
 
             var responseContext = BuildResponseContext(resourceExecutedContext);
-            await LogResponseInTraceAsync(activity, responseContext, cancellationToken);
             await LogResponseInLogAsync(responseContext, cancellationToken);
-        }
-
-        private async Task LogResponseInTraceAsync(
-            Activity? activity,
-            ResponseContext context,
-            CancellationToken cancellationToken)
-        {
-            if (activity is null || _options.LogResponseInTrace == false)
-                return;
-
-            var tags = new ActivityTagsCollection();
-            await foreach (var telemetryItem in context.EnumerateEventItemsAsync(_options, cancellationToken))
-            {
-                tags.Add(telemetryItem.Name, telemetryItem.Value);
-            }
-
-            var @event = new ActivityEvent("Action executed", tags: tags);
-            activity.AddEvent(@event);
         }
 
         private async Task LogResponseInLogAsync(
@@ -79,14 +63,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 .EnumerateEventItemsAsync(_options, cancellationToken)
                 .ToArrayAsync(cancellationToken);
             _logger.LogStructuredActivityEvent("Action executed", eventItems);
-        }
-
-        private bool IsProcessingNeeded(Activity? activity)
-        {
-            if (_options.LogResponseInLog)
-                return true;
-
-            return activity is not null && _options.LogResponseInTrace;
         }
 
         private static ResponseContext BuildResponseContext(ResourceExecutedContext context)
@@ -124,8 +100,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                yield return new StructuredActivityEventItem("http.response.header.content_type", ContentType);
-                yield return new StructuredActivityEventItem("http.response.header.content_length", ContentLength);
+                yield return new StructuredActivityEventItem(HeaderContentType, ContentType);
+                yield return new StructuredActivityEventItem(HeaderContentLength, ContentLength);
 
                 var bodyJson = "<empty>";
                 if (Body is not null)
@@ -134,7 +110,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                         .ConfigureAwait(false);
                 }
 
-                yield return new StructuredActivityEventItem("http.response.body", bodyJson);
+                yield return new StructuredActivityEventItem(BodyKey, bodyJson);
             }
         }
     }

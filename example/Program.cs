@@ -42,9 +42,7 @@ services
             options.TagRequestParamsInTrace = true;
             options.EnrichLogsWithParams = true;
             options.EnrichLogsWithHttpInfo = true;
-            options.LogResponseInTrace = false;
             options.LogResponseInLog = true;
-            options.ValueMaxStringLength = 50;
             options.Formatter = new SystemTextJsonFormatter
             {
                 Options = new JsonSerializerOptions

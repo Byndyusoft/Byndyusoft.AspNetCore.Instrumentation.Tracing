@@ -18,8 +18,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
         private Activity? _activity;
         private Action<AspNetMvcTracingOptions>? _configureTest;
 
-        private const string ResponseContentTypeHeaderKey = "http.response.header.content_type";
-        private const string RequestContentTypeHeaderKey = "http.request.header.content.type";
+        private const string ContentTypeHeaderKey = "http.request.header.content.type";
         private const string RequestModelKey = "http.request.params.model";
         private const string AcceptHeaderKey = "http.request.header.accept";
         private const string ResponseBodyKey = "http.response.body";
@@ -83,27 +82,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
         }
 
         [Fact]
-        public async Task Test_LogResponseInTracesIsTurnedOn_ExpectedResponseEvent()
-        {
-            // arrange
-            _configureTest = options => options.LogResponseInTrace = true;
-            var param = new { Key = "key", Value = "value" };
-
-            // act
-            Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/msgpack"));
-            var responseMessage = await Client.PostAsJsonAsync("test/echo", param);
-            responseMessage.EnsureSuccessStatusCode();
-
-            // assert
-            Assert.NotNull(_activity);
-            var activity = _activity!;
-
-            AssertRequestEventDoesNotExist(activity);
-            AssertResponseEvent(activity, param);
-        }
-
-        [Fact]
         public async Task Test_LogRequestIsTurnedOn_ExpectedRequestEvent()
         {
             // arrange
@@ -137,7 +115,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                 .Single(
                     response.Tags,
                     tag => 
-                        tag.Key == ResponseContentTypeHeaderKey
+                        tag.Key == ContentTypeHeaderKey
                 );
             Assert.Equal(ContentTypeHeaderValue, contentTypeHeader.Value);
 
@@ -187,7 +165,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             var contentTypeHeader =  Assert
                 .Single(
                     request.Tags,
-                    tag => tag.Key == RequestContentTypeHeaderKey
+                    tag => tag.Key == ContentTypeHeaderKey
                 );
             Assert.Equal(
                 ContentTypeHeaderValue,
