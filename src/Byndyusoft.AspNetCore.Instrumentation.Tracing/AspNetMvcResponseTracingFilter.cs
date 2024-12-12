@@ -45,9 +45,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
             var resourceExecutedContext = await next();
 
-            if (_options.LogResponseInLog == false)
-                return;
-
             var responseContext = BuildResponseContext(resourceExecutedContext);
             await LogResponseInLogAsync(responseContext, cancellationToken);
         }

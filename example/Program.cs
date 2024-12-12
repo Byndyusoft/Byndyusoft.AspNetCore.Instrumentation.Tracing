@@ -42,7 +42,6 @@ services
             options.TagRequestParamsInTrace = true;
             options.EnrichLogsWithParams = true;
             options.EnrichLogsWithHttpInfo = true;
-            options.LogResponseInLog = true;
             options.Formatter = new SystemTextJsonFormatter
             {
                 Options = new JsonSerializerOptions
