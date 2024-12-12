@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         protected MvcTestFixture()
         {
-            _url = $"http://localhost:{FreeTcpPort()}";
+            _url = $"http://localhost:5005";//{FreeTcpPort()}";
             _host =
                 Host.CreateDefaultBuilder()
                     .ConfigureWebHostDefaults(webBuilder =>
@@ -65,7 +66,11 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(c => c.ClearProviders());
+            services.AddLogging(c =>
+            {
+                c.ClearProviders();
+                c.AddProvider(new TestLoggerProvider());
+            });
             services.AddControllers();
             ConfigureMvc(services.AddMvcCore());
         }

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
@@ -26,6 +28,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         private const string AcceptHeader = "http.request.header.accept";
         private const string ContentTypeHeader = "http.request.header.content.type";
         private const string ContentLengthHeader = "http.request.header.content.length";
+        private const string BodyHeader = "http.request.body";
 
         public AspNetMvcRequestTracingFilter(
             ILogger<AspNetMvcRequestTracingFilter> logger,
@@ -49,7 +52,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             CancellationToken cancellationToken)
         {
             var activity = Activity.Current;
-            var requestContext = BuildRequestContext(context);
+            var requestContext = await BuildRequestContext(context);
             EnrichLogsWithHttpInfo(requestContext);
             EnrichWithParams(activity, requestContext.Parameters);
             await LogRequestInLogAsync(requestContext, cancellationToken);
@@ -94,19 +97,30 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 ActivityTagEnricher.Enrich(activity, telemetryItems);
         }
 
-        private static RequestContext BuildRequestContext(ActionExecutingContext context)
+        private static async Task<RequestContext> BuildRequestContext(
+            ActionExecutingContext context)
         {
             var acceptFormats = context.HttpContext.Request.Headers["accept"].ToArray();
             var contentType = context.HttpContext.Request.ContentType;
             var contentLength = context.HttpContext.Request.ContentLength;
             var displayUrl = context.HttpContext.Request.GetDisplayUrl();
+            var parameters = GetParameters(context).ToArray();
+            var body = "";
+            if (contentLength.HasValue && !parameters.Any(_ => _.Name.Equals("model")))
+            {
+                using var reader = new StreamReader(
+                    context.HttpContext.Request.Body,
+                    Encoding.UTF8);
+                body = await reader.ReadToEndAsync();
+            }
 
             return new RequestContext(
                 acceptFormats,
                 contentType,
                 contentLength,
-                GetParameters(context).ToArray(),
-                displayUrl);
+                parameters,
+                displayUrl,
+                body);
         }
 
         private static IEnumerable<RequestContextParameter> GetParameters(ActionExecutingContext context)
@@ -131,13 +145,15 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 string? contentType,
                 long? contentLength,
                 RequestContextParameter[] parameters,
-                string url)
+                string url,
+                string body)
             {
                 AcceptFormats = acceptFormats;
                 ContentType = contentType;
                 ContentLength = contentLength;
                 Parameters = parameters;
                 Url = url;
+                Body = body;
             }
 
             public string[] AcceptFormats { get; }
@@ -149,6 +165,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             public RequestContextParameter[] Parameters { get; }
 
             public string Url { get; }
+            public string Body { get; }
 
             public async IAsyncEnumerable<StructuredActivityEventItem> EnumerateEventItemsAsync(
                 AspNetMvcTracingOptions options,
@@ -157,6 +174,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 yield return new StructuredActivityEventItem(AcceptHeader, AcceptFormats);
                 yield return new StructuredActivityEventItem(ContentTypeHeader, ContentType);
                 yield return new StructuredActivityEventItem(ContentLengthHeader, ContentLength);
+                yield return new StructuredActivityEventItem(BodyHeader, Body);
 
                 foreach (var parameter in Parameters)
                 {

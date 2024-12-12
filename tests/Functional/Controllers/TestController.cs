@@ -1,3 +1,5 @@
+using System.IO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional.Controllers
@@ -10,6 +12,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional.Control
         public object Echo([FromBody] object model)
         {
             return model;
+        }
+
+        [HttpPost("stream")]
+        public IActionResult ReturnStream()
+        {
+            return File(Request.Body, "application/octet-stream");
         }
     }
 }
