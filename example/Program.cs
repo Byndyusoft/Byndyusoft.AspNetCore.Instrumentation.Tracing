@@ -37,9 +37,7 @@ services
     .AddTracing(
         options =>
         {
-            options.LogRequestInTrace = false;
-            options.LogRequestInLog = true;
-            options.TagRequestParamsInTrace = true;
+            options.EnrichTraceWithTaggedRequestParams = true;
             options.EnrichLogsWithParams = true;
             options.EnrichLogsWithHttpInfo = true;
             options.Formatter = new SystemTextJsonFormatter

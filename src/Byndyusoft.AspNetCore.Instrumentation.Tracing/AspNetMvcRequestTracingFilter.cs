@@ -22,6 +22,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
     {
         private readonly ILogger<AspNetMvcRequestTracingFilter> _logger;
         private readonly AspNetMvcTracingOptions _options;
+        
+        private const string AcceptHeader = "http.request.header.accept";
+        private const string ContentTypeHeader = "http.request.header.content.type";
+        private const string ContentLengthHeader = "http.request.header.content.length";
 
         public AspNetMvcRequestTracingFilter(
             ILogger<AspNetMvcRequestTracingFilter> logger,
@@ -29,7 +33,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             _logger = logger;
             Guard.NotNull(options, nameof(options));
-
             _options = options.Value;
         }
 
@@ -46,51 +49,17 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             CancellationToken cancellationToken)
         {
             var activity = Activity.Current;
-            if (IsProcessingNeeded(activity))
-            {
-                var requestContext = BuildRequestContext(context);
-                EnrichLogsWithHttpInfo(requestContext);
-                EnrichWithParams(activity, requestContext.Parameters);
-                await LogRequestInTraceAsync(activity, requestContext, cancellationToken);
-                await LogRequestInLogAsync(requestContext, cancellationToken);
-            }
-
+            var requestContext = BuildRequestContext(context);
+            EnrichLogsWithHttpInfo(requestContext);
+            EnrichWithParams(activity, requestContext.Parameters);
+            await LogRequestInLogAsync(requestContext, cancellationToken);
             await next();
-        }
-
-        private bool IsProcessingNeeded(Activity? activity)
-        {
-            if (_options.LogRequestInLog || _options.EnrichLogsWithParams || _options.EnrichLogsWithHttpInfo)
-                return true;
-
-            return activity is not null && (_options.LogRequestInTrace || _options.TagRequestParamsInTrace);
-        }
-
-        private async Task LogRequestInTraceAsync(
-            Activity? activity,
-            RequestContext context,
-            CancellationToken cancellationToken)
-        {
-            if (activity is null || _options.LogRequestInTrace == false)
-                return;
-
-            var tags = new ActivityTagsCollection();
-            await foreach (var telemetryItem in context.EnumerateEventItemsAsync(_options, cancellationToken))
-            {
-                tags.Add(telemetryItem.Name, telemetryItem.Value);
-            }
-
-            var @event = new ActivityEvent("Action executing", tags: tags);
-            activity.AddEvent(@event);
         }
 
         private async Task LogRequestInLogAsync(
             RequestContext context,
             CancellationToken cancellationToken)
         {
-            if (_options.LogRequestInLog == false)
-                return;
-
             var eventItems = await context
                 .EnumerateEventItemsAsync(_options, cancellationToken)
                 .ToArrayAsync(cancellationToken);
@@ -102,7 +71,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             if (_options.EnrichLogsWithHttpInfo == false)
                 return;
-
             LogPropertyDataAccessor.AddTelemetryItem("http.request.url", context.Url);
         }
 
@@ -110,8 +78,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             Activity? activity,
             RequestContextParameter[] requestContextParameters)
         {
-            if (_options.EnrichLogsWithParams == false &&
-                (activity is null || _options.TagRequestParamsInTrace == false))
+            if (_options.EnrichLogsWithParams == false
+                && activity is null
+                && _options.EnrichTraceWithTaggedRequestParams == false)
                 return;
 
             var telemetryItems = requestContextParameters
@@ -121,7 +90,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             if (_options.EnrichLogsWithParams)
                 LogPropertyDataAccessor.AddTelemetryItems(telemetryItems);
 
-            if (activity is not null && _options.TagRequestParamsInTrace)
+            if (activity is not null && _options.EnrichTraceWithTaggedRequestParams)
                 ActivityTagEnricher.Enrich(activity, telemetryItems);
         }
 
@@ -185,9 +154,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                yield return new StructuredActivityEventItem("http.request.header.accept", AcceptFormats);
-                yield return new StructuredActivityEventItem("http.request.header.content.type", ContentType);
-                yield return new StructuredActivityEventItem("http.request.header.content.length", ContentLength);
+                yield return new StructuredActivityEventItem(AcceptHeader, AcceptFormats);
+                yield return new StructuredActivityEventItem(ContentTypeHeader, ContentType);
+                yield return new StructuredActivityEventItem(ContentLengthHeader, ContentLength);
 
                 foreach (var parameter in Parameters)
                 {

@@ -20,8 +20,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         private readonly ILogger<AspNetMvcResponseTracingFilter> _logger;
         private readonly AspNetMvcTracingOptions _options;
 
-        private const string HeaderContentType = "http.response.header.content.type";
-        private const string HeaderContentLength = "http.response.header.content.length";
+        private const string ContentTypeHeader = "http.response.header.content.type";
+        private const string ContentLengthHeader = "http.response.header.content.length";
         private const string BodyKey = "http.response.body";
 
         public AspNetMvcResponseTracingFilter(
@@ -53,9 +53,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             ResponseContext context,
             CancellationToken cancellationToken)
         {
-            if (_options.LogRequestInLog == false)
-                return;
-
             var eventItems = await context
                 .EnumerateEventItemsAsync(_options, cancellationToken)
                 .ToArrayAsync(cancellationToken);
@@ -97,8 +94,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                yield return new StructuredActivityEventItem(HeaderContentType, ContentType);
-                yield return new StructuredActivityEventItem(HeaderContentLength, ContentLength);
+                yield return new StructuredActivityEventItem(ContentTypeHeader, ContentType);
+                yield return new StructuredActivityEventItem(ContentLengthHeader, ContentLength);
 
                 var bodyJson = "<empty>";
                 if (Body is not null)

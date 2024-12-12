@@ -16,9 +16,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             _formatter = new SystemTextJsonFormatter();
             _valueMaxStringLength = null;
 
-            LogRequestInTrace = false;
-            LogRequestInLog = true;
-            TagRequestParamsInTrace = true;
+            EnrichTraceWithTaggedRequestParams = true;
             EnrichLogsWithParams = true;
             EnrichLogsWithHttpInfo = true;
         }
@@ -35,11 +33,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             set => _valueMaxStringLength = Guard.NotNegative(value, nameof(ValueMaxStringLength));
         }
 
-        public bool LogRequestInTrace { get; set; }
-
-        public bool LogRequestInLog { get; set; }
-
-        public bool TagRequestParamsInTrace { get; set; }
+        public bool EnrichTraceWithTaggedRequestParams { get; set; }
 
         public bool EnrichLogsWithParams { get; set; }
 
@@ -54,9 +48,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             Formatter = options.Formatter;
             ValueMaxStringLength = options.ValueMaxStringLength;
-            LogRequestInTrace = options.LogRequestInTrace;
-            LogRequestInLog = options.LogRequestInLog;
-            TagRequestParamsInTrace = options.TagRequestParamsInTrace;
+            EnrichTraceWithTaggedRequestParams = options.EnrichTraceWithTaggedRequestParams;
             EnrichLogsWithParams = options.EnrichLogsWithParams;
             EnrichLogsWithHttpInfo = options.EnrichLogsWithHttpInfo;
         }
