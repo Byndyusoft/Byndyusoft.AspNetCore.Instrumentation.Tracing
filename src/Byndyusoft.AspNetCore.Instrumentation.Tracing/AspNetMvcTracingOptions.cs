@@ -8,15 +8,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
     public class AspNetMvcTracingOptions
     {
-        public const int DefaultValueMaxStringLength = 2000;
-
         private IFormatter _formatter;
         private int? _valueMaxStringLength;
 
         public AspNetMvcTracingOptions()
         {
             _formatter = new SystemTextJsonFormatter();
-            _valueMaxStringLength = DefaultValueMaxStringLength;
+            _valueMaxStringLength = null;
 
             LogRequestInTrace = false;
             LogRequestInLog = true;
