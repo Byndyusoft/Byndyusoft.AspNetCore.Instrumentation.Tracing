@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
-    public class AspNetMvcResponseTracingFilter : IAsyncResultFilter
+    public class AspNetMvcResponseTracingFilter : IAsyncResultFilter, IOrderedFilter
     {
         private readonly AspNetMvcTracingOptions _options;
 
@@ -52,5 +52,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             var evnt = new ActivityEvent("Action executed", tags: tags);
             Activity.Current.AddEvent(evnt);
         }
+
+        public int Order => 3000;
     }
 }
