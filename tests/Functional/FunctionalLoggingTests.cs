@@ -19,7 +19,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
     public class FunctionalLoggingTests: MvcTestFixture
     {
         private readonly JsonSerializerOptions _jsonSerializerOptions = new();
-        private TestLoggerProvider _loggerProvider;
+        private TestLoggerProvider? _loggerProvider;
         private const string RequestModelName = "http.request.params.model";
         private const string ResponseBodyName = "http.response.body";
         private const string RequestBodyName = "http.request.body";
@@ -37,13 +37,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             builder.Services
                 .AddOpenTelemetry()
                 .ConfigureResource(resource => resource.AddService("service"))
-                .WithTracing(
-                    tracing =>
-                    {
-                        tracing
-                            .AddAspNetCoreInstrumentation();
-                    }
-                );
+                .WithTracing(tracing => tracing.AddAspNetCoreInstrumentation());
             _loggerProvider = (TestLoggerProvider)builder
                 .Services
                 .BuildServiceProvider()

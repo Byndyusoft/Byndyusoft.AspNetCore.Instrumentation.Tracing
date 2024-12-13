@@ -95,8 +95,7 @@ services
                         .Configuration
                         .GetSection("Jaeger")
                         .Bind
-                )
-                .AddConsoleExporter();
+                );
         }
     );
 services.AddMvc();

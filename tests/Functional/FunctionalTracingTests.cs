@@ -47,10 +47,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                         tracing
                             .AddAspNetCoreInstrumentation(
                                 options =>
-                                {
-                                    options.EnrichWithHttpRequest +=
-                                        (activity, _) => _activity = activity;
-                                }
+                                    options.EnrichWithHttpRequest = (activity, _) => _activity = activity
                             );
                     }
                 );
@@ -88,8 +85,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
         {
             Assert.DoesNotContain(
                 activity.Events,
-                @event =>
-                    @event.Name == EventActionExecuting
+                @event => @event.Name == EventActionExecuting
             );
         }
     }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 {
@@ -66,11 +67,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(c =>
-            {
-                c.ClearProviders();
-                c.AddProvider(new TestLoggerProvider());
-            });
+            services.AddLogging(
+                c =>
+                {
+                    c.ClearProviders();
+                    c.AddProvider(new TestLoggerProvider());
+                }
+            );
             services.AddControllers();
             ConfigureMvc(services.AddMvcCore());
         }
