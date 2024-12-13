@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
@@ -41,5 +42,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             Formatter = options.Formatter;
             ValueMaxStringLength = options.ValueMaxStringLength;
         }
+
+        /// <summary>
+        ///     Значение, которое было задано в <see cref="ApiBehaviorOptions.SuppressModelStateInvalidFilter "/>
+        /// </summary>
+        internal bool InitialSuppressModelStateInvalidFilter { get; set; }
     }
 }

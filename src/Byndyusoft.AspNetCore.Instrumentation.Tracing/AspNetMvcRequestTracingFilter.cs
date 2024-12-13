@@ -3,21 +3,41 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
-    public class AspNetMvcRequestTracingFilter : IAsyncActionFilter
+    /// <see href="https://github.com/dotnet/aspnetcore/issues/50432"/>
+    /// <remarks>
+    ///     Т.к. пользовательские фильтры всегда вызываются после системных,
+    ///     то в случае включения валидации фильтр <see cref="ModelStateInvalidFilter"/> отрабатывает раньше
+    ///     и до логирования проблемного запроса дело не доходит.
+    ///     Из-за этого мы вынуждены вызывать <see cref="ModelStateInvalidFilter"/> вручную
+    ///     и отключать автоматическую проверку в <see cref="TracingMvcBuilderExtensions.PostConfigureMvcOptions"/> 
+    /// </remarks>>
+    public class AspNetMvcRequestTracingFilter : IAsyncActionFilter, IOrderedFilter
     {
         private readonly AspNetMvcTracingOptions _options;
+        private readonly ModelStateInvalidFilter _modelStateInvalidFilter;
 
-        public AspNetMvcRequestTracingFilter(IOptions<AspNetMvcTracingOptions> options)
+        public AspNetMvcRequestTracingFilter(
+            IOptions<AspNetMvcTracingOptions> options,
+            IOptions<ApiBehaviorOptions> apiBehaviorOptions,
+            ILoggerFactory loggerFactory)
         {
             Guard.NotNull(options, nameof(options));
+            Guard.NotNull(apiBehaviorOptions, nameof(apiBehaviorOptions));
+            Guard.NotNull(loggerFactory, nameof(loggerFactory));
 
             _options = options.Value;
+            _modelStateInvalidFilter = new ModelStateInvalidFilter(
+                apiBehaviorOptions.Value,
+                loggerFactory.CreateLogger(typeof(ModelStateInvalidFilter)));
         }
 
         public Task OnActionExecutionAsync(
@@ -55,7 +75,15 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 activity.AddEvent(@event);
             }
 
-            await next();
+            if (_options.InitialSuppressModelStateInvalidFilter == false)
+            {
+                _modelStateInvalidFilter.OnActionExecuting(context);
+            }
+            
+            if (context.Result is null)
+            {
+                await next();
+            }
         }
 
         private static IEnumerable<(string name, object? value)> GetParameters(ActionExecutingContext context)
@@ -73,5 +101,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 }
             }
         }
+
+        public int Order => _modelStateInvalidFilter.Order - 1;
     }
 }
