@@ -31,12 +31,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Byndyusoft.Logging.OpenTelemetry.Abstractions" Version="3.0.1" />
-        <PackageReference Include="Byndyusoft.MaskedSerialization" Version="3.0.0" />
-        <PackageReference Include="Byndyusoft.MaskedSerialization.Newtonsoft" Version="3.0.0" />
-        <PackageReference Include="Byndyusoft.Telemetry.Logging" Version="0.0.4" />
-        <PackageReference Include="Byndyusoft.Telemetry.OpenTelemetry" Version="0.0.4" />
-        <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+		<PackageReference Include="Byndyusoft.Logging.OpenTelemetry.Abstractions" Version="3.0.1" />
+		<PackageReference Include="Byndyusoft.MaskedSerialization" Version="3.0.0" />
+		<PackageReference Include="Byndyusoft.Telemetry.Logging" Version="0.0.4" />
+		<PackageReference Include="Byndyusoft.Telemetry.OpenTelemetry" Version="0.0.4" />
+		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
 	</ItemGroup>
 
 </Project>

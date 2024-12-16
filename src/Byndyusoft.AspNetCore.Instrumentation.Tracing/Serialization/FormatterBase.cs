@@ -9,7 +9,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
         public async ValueTask<string?> FormatAsync(
             object? value,
             int? valueMaxStringLength,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default
+        )
         {
             if (value is null)
                 return "null";
@@ -25,6 +26,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
         protected abstract ValueTask FormatValueAsync(
             object value,
             Stream stream,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken
+        );
     }
 }

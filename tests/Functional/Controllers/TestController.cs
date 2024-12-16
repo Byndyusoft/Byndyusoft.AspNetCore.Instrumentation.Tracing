@@ -11,11 +11,5 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional.Control
         {
             return model;
         }
-
-        [HttpPost("stream")]
-        public IActionResult ReturnStream()
-        {
-            return File(Request.Body, "application/octet-stream");
-        }
     }
 }

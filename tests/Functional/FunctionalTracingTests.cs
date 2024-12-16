@@ -36,7 +36,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                         Options = _jsonSerializerOptions
                     };
                     _configureTest?.Invoke(tracing);
-                });
+                }
+            );
 
             builder.Services
                 .AddOpenTelemetry()

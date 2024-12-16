@@ -8,6 +8,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
         ValueTask<string?> FormatAsync(
             object? value,
             int? valueMaxStringLength,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken
+        );
     }
 }

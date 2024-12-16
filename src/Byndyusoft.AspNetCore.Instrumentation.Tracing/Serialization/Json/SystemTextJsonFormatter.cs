@@ -26,9 +26,16 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json
         protected override async ValueTask FormatValueAsync(
             object value,
             Stream stream,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken
+        )
         {
-            await JsonSerializer.SerializeAsync(stream, value, Options, cancellationToken)
+            await JsonSerializer
+                .SerializeAsync(
+                    stream,
+                    value,
+                    Options,
+                    cancellationToken
+                )
                 .ConfigureAwait(false);
         }
     }

@@ -29,7 +29,7 @@ builder.Host.UseSerilog((context, configuration) => configuration
 
 var serviceName = builder
     .Configuration
-    .GetValue<string>("Jaeger:ServiceName");
+    .GetValue<string>("Jaeger:ServiceName")!;
 
 var services = builder.Services;
 services
@@ -71,7 +71,7 @@ services.AddSwaggerGen(
 services
     .AddOpenTelemetry()
     .ConfigureResource(
-        resource => resource.AddService(serviceName!)
+        resource => resource.AddService(serviceName)
     )
     .WithTracing(
         tracerBuilder =>

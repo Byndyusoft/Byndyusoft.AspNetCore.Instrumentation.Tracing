@@ -32,7 +32,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                     {
                         Options = _jsonSerializerOptions
                     };
-                });
+                }
+            );
 
             builder.Services
                 .AddOpenTelemetry()
@@ -53,20 +54,22 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             var responseMessage = await Client.PostAsJsonAsync("test/echo",  data);
             responseMessage.EnsureSuccessStatusCode();
 
-            var reqMessageStr =GetBodyFromLogger(
+            var requestMessageString = GetBodyFromLogger(
                 _loggerProvider
                     .Loggers[typeof(AspNetMvcRequestTracingFilter).FullName],
-                RequestModelName);
-            var resMessageStr = GetBodyFromLogger(
+                RequestModelName
+            );
+            var responseMessageString = GetBodyFromLogger(
                 _loggerProvider
                     .Loggers[typeof(AspNetMvcResponseTracingFilter).FullName],
-                ResponseBodyName);
+                ResponseBodyName
+            );
             
             var expected = JToken.FromObject(data).ToString(Formatting.None);
 
             // assert
-            Assert.Equal(expected, reqMessageStr, ignoreCase: true);
-            Assert.Equal(expected, resMessageStr, ignoreCase: true);
+            Assert.Equal(expected, requestMessageString, ignoreCase: true);
+            Assert.Equal(expected, responseMessageString, ignoreCase: true);
         }
         
         [Fact]
@@ -81,20 +84,22 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             var responseMessage = await Client.PostAsJsonAsync("test/echo", data);
             responseMessage.EnsureSuccessStatusCode();
 
-            var reqMessageStr =GetBodyFromLogger(
+            var requestMessageString = GetBodyFromLogger(
                 _loggerProvider
                     .Loggers[typeof(AspNetMvcRequestTracingFilter).FullName],
-                RequestModelName);
-            var resMessageStr = GetBodyFromLogger(
+                RequestModelName
+            );
+            var responseMessageString = GetBodyFromLogger(
                 _loggerProvider
                     .Loggers[typeof(AspNetMvcResponseTracingFilter).FullName],
-                ResponseBodyName);
+                ResponseBodyName
+            );
             
             var expected = JObject.FromObject(data).ToString(Formatting.None);
 
             // assert
-            Assert.Equal(expected, reqMessageStr, ignoreCase: true);
-            Assert.Equal(expected, resMessageStr, ignoreCase: true);
+            Assert.Equal(expected, requestMessageString, ignoreCase: true);
+            Assert.Equal(expected, responseMessageString, ignoreCase: true);
         }
         
         [Fact]
@@ -110,22 +115,18 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
             
             var responseMessage = await Client.PostAsync("test/stream", new StreamContent(dataMemoryStream));
-            responseMessage.EnsureSuccessStatusCode();
+            Assert.Throws<HttpRequestException>(responseMessage.EnsureSuccessStatusCode);
 
-            var reqMessageStr =GetBodyFromLogger(
+            Assert.False(
                 _loggerProvider
-                    .Loggers[typeof(AspNetMvcRequestTracingFilter).FullName],
-                RequestBodyName);
-            
-            var resMessageStr = GetBodyFromLogger(
+                    .Loggers
+                    .ContainsKey(typeof(AspNetMvcRequestTracingFilter).FullName)
+            );
+            Assert.False(
                 _loggerProvider
-                    .Loggers[typeof(AspNetMvcResponseTracingFilter).FullName],
-                ResponseBodyName);
-
-            // assert
-            Assert.Equal(data, reqMessageStr, ignoreCase: true);
-            //ActionResultBodyExtractor returns "stream" as response body if body is stream
-            Assert.Equal("\"stream\"", resMessageStr, ignoreCase: true);
+                    .Loggers
+                    .ContainsKey(typeof(AspNetMvcResponseTracingFilter).FullName)
+            );
         }
 
         private static string GetBodyFromLogger(TestLogger logger, string name)

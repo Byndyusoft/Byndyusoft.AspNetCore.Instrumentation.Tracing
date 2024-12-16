@@ -28,20 +28,21 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         private const string AcceptHeader = "http.request.header.accept";
         private const string ContentTypeHeader = "http.request.header.content.type";
         private const string ContentLengthHeader = "http.request.header.content.length";
-        private const string BodyHeader = "http.request.body";
 
         public AspNetMvcRequestTracingFilter(
             ILogger<AspNetMvcRequestTracingFilter> logger,
-            IOptions<AspNetMvcTracingOptions> options)
+            IOptions<AspNetMvcTracingOptions> options
+        )
         {
-            _logger = logger;
+            _logger = Guard.NotNull(logger, nameof(logger));
             Guard.NotNull(options, nameof(options));
             _options = options.Value;
         }
 
         public Task OnActionExecutionAsync(
             ActionExecutingContext context,
-            ActionExecutionDelegate next)
+            ActionExecutionDelegate next
+        )
         {
             return OnActionExecutionAsync(context, next, context.HttpContext.RequestAborted);
         }
@@ -49,7 +50,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         private async Task OnActionExecutionAsync(
             ActionExecutingContext context,
             ActionExecutionDelegate next,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken
+        )
         {
             var activity = Activity.Current;
             var requestContext = await BuildRequestContext(context);
@@ -61,7 +63,8 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         private async Task LogRequestInLogAsync(
             RequestContext context,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken
+        )
         {
             var eventItems = await context
                 .EnumerateEventItemsAsync(_options, cancellationToken)
@@ -74,12 +77,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             if (_options.EnrichLogsWithHttpInfo == false)
                 return;
+
             LogPropertyDataAccessor.AddTelemetryItem("http.request.url", context.Url);
         }
 
         private void EnrichWithParams(
             Activity? activity,
-            RequestContextParameter[] requestContextParameters)
+            RequestContextParameter[] requestContextParameters
+        )
         {
             if (_options.EnrichLogsWithParams == false
                 && activity is null
@@ -97,30 +102,21 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 ActivityTagEnricher.Enrich(activity, telemetryItems);
         }
 
-        private static async Task<RequestContext> BuildRequestContext(
-            ActionExecutingContext context)
+        private static async Task<RequestContext> BuildRequestContext(ActionExecutingContext context)
         {
             var acceptFormats = context.HttpContext.Request.Headers["accept"].ToArray();
             var contentType = context.HttpContext.Request.ContentType;
             var contentLength = context.HttpContext.Request.ContentLength;
             var displayUrl = context.HttpContext.Request.GetDisplayUrl();
             var parameters = GetParameters(context).ToArray();
-            var body = "";
-            if (contentLength.HasValue && !parameters.Any(_ => _.Name.Equals("model")))
-            {
-                using var reader = new StreamReader(
-                    context.HttpContext.Request.Body,
-                    Encoding.UTF8);
-                body = await reader.ReadToEndAsync();
-            }
 
             return new RequestContext(
                 acceptFormats,
                 contentType,
                 contentLength,
                 parameters,
-                displayUrl,
-                body);
+                displayUrl
+            );
         }
 
         private static IEnumerable<RequestContextParameter> GetParameters(ActionExecutingContext context)
@@ -145,15 +141,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 string? contentType,
                 long? contentLength,
                 RequestContextParameter[] parameters,
-                string url,
-                string body)
+                string url
+            )
             {
                 AcceptFormats = acceptFormats;
                 ContentType = contentType;
                 ContentLength = contentLength;
                 Parameters = parameters;
                 Url = url;
-                Body = body;
             }
 
             public string[] AcceptFormats { get; }
@@ -165,7 +160,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             public RequestContextParameter[] Parameters { get; }
 
             public string Url { get; }
-            public string Body { get; }
 
             public async IAsyncEnumerable<StructuredActivityEventItem> EnumerateEventItemsAsync(
                 AspNetMvcTracingOptions options,
@@ -174,7 +168,6 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 yield return new StructuredActivityEventItem(AcceptHeader, AcceptFormats);
                 yield return new StructuredActivityEventItem(ContentTypeHeader, ContentType);
                 yield return new StructuredActivityEventItem(ContentLengthHeader, ContentLength);
-                yield return new StructuredActivityEventItem(BodyHeader, Body);
 
                 foreach (var parameter in Parameters)
                 {
