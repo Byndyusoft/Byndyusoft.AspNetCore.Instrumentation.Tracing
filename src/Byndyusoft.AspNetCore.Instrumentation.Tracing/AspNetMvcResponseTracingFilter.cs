@@ -1,56 +1,111 @@
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Services;
+using Byndyusoft.Logging;
+using Byndyusoft.Logging.Extensions;
+using Byndyusoft.Telemetry.Logging;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
-    public class AspNetMvcResponseTracingFilter : IAsyncResultFilter
+    public class AspNetMvcResponseTracingFilter : IAsyncResourceFilter
     {
+        private readonly ILogger<AspNetMvcResponseTracingFilter> _logger;
         private readonly AspNetMvcTracingOptions _options;
 
-        public AspNetMvcResponseTracingFilter(IOptions<AspNetMvcTracingOptions> options)
+        private const string ContentTypeHeader = "http.response.header.content.type";
+        private const string ContentLengthHeader = "http.response.header.content.length";
+        private const string BodyKey = "http.response.body";
+
+        public AspNetMvcResponseTracingFilter(
+            ILogger<AspNetMvcResponseTracingFilter> logger,
+            IOptions<AspNetMvcTracingOptions> options)
         {
+            _logger = logger;
             Guard.NotNull(options, nameof(options));
 
             _options = options.Value;
         }
 
-        public Task OnResultExecutionAsync(
-            ResultExecutingContext context,
-            ResultExecutionDelegate next)
+        public Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
-            return OnResultExecutionAsync(context, next, context.HttpContext.RequestAborted);
+            return OnResourceExecutionAsync(next, context.HttpContext.RequestAborted);
         }
 
-        private async Task OnResultExecutionAsync(
-            ResultExecutingContext context,
-            ResultExecutionDelegate next,
+        private async Task OnResourceExecutionAsync(ResourceExecutionDelegate next, CancellationToken cancellationToken)
+        {
+            LogPropertyDataAccessor.InitAsyncContext();
+
+            var resourceExecutedContext = await next();
+
+            var responseContext = BuildResponseContext(resourceExecutedContext);
+            await LogResponseInLogAsync(responseContext, cancellationToken);
+        }
+
+        private async Task LogResponseInLogAsync(
+            ResponseContext context,
             CancellationToken cancellationToken)
         {
-            await next();
+            var eventItems = await context
+                .EnumerateEventItemsAsync(_options, cancellationToken)
+                .ToArrayAsync(cancellationToken);
+            _logger.LogStructuredActivityEvent("Action executed", eventItems);
+        }
 
-            if (Activity.Current == null)
-                return;
+        private static ResponseContext BuildResponseContext(ResourceExecutedContext context)
+        {
+            var contentType = context.HttpContext.Response.ContentType;
+            var contentLength = context.HttpContext.Response.ContentLength;
+            if (ActionResultBodyExtractor.TryExtractBody(context.Result, out var body) == false)
+                body = null;
 
-            var tags = new ActivityTagsCollection
+            return new ResponseContext(
+                contentType,
+                contentLength,
+                body);
+        }
+
+        private class ResponseContext
+        {
+            public ResponseContext(
+                string contentType,
+                long? contentLength,
+                object? body)
             {
-                {"http.response.header.content_type", context.HttpContext.Response.ContentType},
-                {"http.response.header.content_length", context.HttpContext.Response.ContentLength}
-            };
-
-            if (ActionResultBodyExtractor.TryExtractBody(context.Result, out var body))
-            {
-                var json = await _options.FormatAsync(body, cancellationToken)
-                    .ConfigureAwait(false);
-                tags.Add("http.response.body", json);
+                ContentType = contentType;
+                ContentLength = contentLength;
+                Body = body;
             }
 
-            var evnt = new ActivityEvent("Action executed", tags: tags);
-            Activity.Current.AddEvent(evnt);
+            public string ContentType { get; }
+
+            public long? ContentLength { get; }
+
+            public object? Body { get; }
+
+            public async IAsyncEnumerable<StructuredActivityEventItem> EnumerateEventItemsAsync(
+                AspNetMvcTracingOptions options,
+                [EnumeratorCancellation] CancellationToken cancellationToken)
+            {
+                yield return new StructuredActivityEventItem(ContentTypeHeader, ContentType);
+                yield return new StructuredActivityEventItem(ContentLengthHeader, ContentLength);
+
+                var bodyJson = "<empty>";
+                if (Body is not null)
+                {
+                    bodyJson = await options.FormatAsync(Body, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                yield return new StructuredActivityEventItem(BodyKey, bodyJson);
+            }
         }
     }
 }

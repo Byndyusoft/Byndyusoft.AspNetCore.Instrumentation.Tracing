@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -11,12 +12,16 @@ using Xunit;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 {
-    public class FunctionalTests : MvcTestFixture
+    public class FunctionalTracingTests : MvcTestFixture
     {
         private readonly JsonSerializerOptions _jsonSerializerOptions = new();
         private Activity? _activity;
+        private Action<AspNetMvcTracingOptions>? _configureTest;
+        
+        private const string EventActionExecuted = "Action executed";
+        private const string EventActionExecuting = "Action executing";
 
-        public FunctionalTests()
+        public FunctionalTracingTests()
         {
             _jsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower; 
         }
@@ -30,6 +35,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                     {
                         Options = _jsonSerializerOptions
                     };
+                    _configureTest?.Invoke(tracing);
                 }
             );
 
@@ -42,55 +48,46 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
                         tracing
                             .AddAspNetCoreInstrumentation(
                                 options =>
-                                {
-                                    options.EnrichWithHttpRequest =
-                                        (activity, _) => _activity = activity;
-                                }
+                                    options.EnrichWithHttpRequest = (activity, _) => _activity = activity
                             );
                     }
                 );
         }
 
         [Fact]
-        public async Task Test()
+        public async Task Test_DefaultBehaviour_ExpectedRequestAndResponseEvents()
         {
             // arrange
-            var param = new {Key = "key", Value = "value"};
+            var param = new { Key = "key", Value = "value" };
 
             // act
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/msgpack"));
             var responseMessage = await Client.PostAsJsonAsync("test/echo", param);
             responseMessage.EnsureSuccessStatusCode();
-            
+
             // assert
             Assert.NotNull(_activity);
             var activity = _activity!;
 
-            {
-                var request = Assert.Single(activity.Events, evnt => evnt.Name == "Action executing");
+            AssertRequestEventDoesNotExist(activity);
+            AssertResponseEventDoesNotExist(activity);
+        }
 
-                var acceptHeader = Assert.Single(request.Tags, tag => tag.Key == "http.request.header.accept");
-                Assert.Equal(new[] {"application/json, application/msgpack"}, acceptHeader.Value);
+        private void AssertResponseEventDoesNotExist(Activity activity)
+        {
+            Assert.DoesNotContain(
+                activity.Events,
+                @event => @event.Name == EventActionExecuted
+            );
+        }
 
-                var contentTypeHeader =
-                    Assert.Single(request.Tags, tag => tag.Key == "http.request.header.content_type");
-                Assert.Equal("application/json; charset=utf-8", contentTypeHeader.Value);
-
-                var model = Assert.Single(request.Tags, tag => tag.Key == "http.request.params.model");
-                Assert.Equal(JsonSerializer.Serialize(param, _jsonSerializerOptions), model.Value);
-            }
-
-            {
-                var response = Assert.Single(activity.Events, evnt => evnt.Name == "Action executed");
-
-                var contentTypeHeader =
-                    Assert.Single(response.Tags, tag => tag.Key == "http.response.header.content_type");
-                Assert.Equal("application/json; charset=utf-8", contentTypeHeader.Value);
-
-                var body = Assert.Single(response.Tags, tag => tag.Key == "http.response.body");
-                Assert.Equal(JsonSerializer.Serialize(param, _jsonSerializerOptions), body.Value);
-            }
+        private void AssertRequestEventDoesNotExist(Activity activity)
+        {
+            Assert.DoesNotContain(
+                activity.Events,
+                @event => @event.Name == EventActionExecuting
+            );
         }
     }
 }

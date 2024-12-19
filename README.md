@@ -13,7 +13,7 @@ dotnet add package Byndyusoft.AspNetCore.Instrumentation.Tracing
 
 ## Usages
 
-```shell
+```csharp
 public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
@@ -27,7 +27,7 @@ public class Startup
 
 ## Configuring
 
-```shell
+```csharp
 public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
@@ -35,6 +35,9 @@ public class Startup
         services.AddControllers()
                 .AddTracing(options =>
                 {
+                    options.TagRequestParamsInTrace = true;
+                    options.EnrichLogsWithParams = true;
+                    options.EnrichLogsWithHttpInfo = true;
                     options.ValueMaxStringLength = 50;
                     options.Formatter = new SystemTextJsonFormatter
                     {
@@ -51,6 +54,13 @@ public class Startup
     }
 }
 ```
+
+There are some default option parameters:
+1. EnrichTraceWithTaggedRequestParams — if true then http request params will be added to trace tags. Default: true. For more detail how params are extracted, refer to [page](https://github.com/Byndyusoft/Byndyusoft.Telemetry#object-telemetry-item-collector).
+2. EnrichLogsWithParams — if true then every log will be enriched with request params during this request. Default: true. For more detail how params are extracted, refer to [page](https://github.com/Byndyusoft/Byndyusoft.Telemetry#object-telemetry-item-collector).
+3. EnrichLogsWithHttpInfo — if true then every log will be enriched with request http info during this request. Default: true.
+4. ValueMaxStringLength — maximum number of serialized request and response body string length. This string will be written to trace events and/or logs. The excess will be trimmed. Default: null - unlimited.
+5. Formatter — it is used to serialize request and response body. Default: [SystemTextJsonFormatter](src/Byndyusoft.AspNetCore.Instrumentation.Tracing/Serialization/Json/SystemTextJsonFormatter.cs).
 
 ## MaskedSerialization
 

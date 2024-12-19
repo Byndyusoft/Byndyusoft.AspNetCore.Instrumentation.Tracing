@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,7 +38,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
             {
                 if (_client == null)
                 {
-                    _client = new HttpClient {BaseAddress = new Uri(_url)};
+                    _client = new HttpClient { BaseAddress = new Uri(_url) };
                     ConfigureHttpClient(_client);
                 }
 
@@ -65,7 +66,13 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(c => c.ClearProviders());
+            services.AddLogging(
+                c =>
+                {
+                    c.ClearProviders();
+                    c.AddProvider(new TestLoggerProvider());
+                }
+            );
             services.AddControllers();
             ConfigureMvc(services.AddMvcCore());
         }
@@ -80,7 +87,7 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Tests.Functional
         {
             var listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start();
-            var port = ((IPEndPoint) listener.LocalEndpoint).Port;
+            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
             listener.Stop();
             return port;
         }

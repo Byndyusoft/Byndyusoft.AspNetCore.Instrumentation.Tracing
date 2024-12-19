@@ -6,21 +6,27 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
     public abstract class FormatterBase : IFormatter
     {
-        public async ValueTask<string?> FormatAsync(object? value, AspNetMvcTracingOptions options,
-            CancellationToken cancellationToken = default)
+        public async ValueTask<string?> FormatAsync(
+            object? value,
+            int? valueMaxStringLength,
+            CancellationToken cancellationToken = default
+        )
         {
             if (value is null)
                 return "null";
 
-            using var stream = new StringLimitStream(options.ValueMaxStringLength);
+            using var stream = new StringLimitStream(valueMaxStringLength);
 
-            await FormatValueAsync(value, stream, options, cancellationToken)
+            await FormatValueAsync(value, stream, cancellationToken)
                 .ConfigureAwait(false);
 
             return stream.GetString();
         }
 
-        protected abstract ValueTask FormatValueAsync(object value, Stream stream, AspNetMvcTracingOptions options,
-            CancellationToken cancellationToken);
+        protected abstract ValueTask FormatValueAsync(
+            object value,
+            Stream stream,
+            CancellationToken cancellationToken
+        );
     }
 }

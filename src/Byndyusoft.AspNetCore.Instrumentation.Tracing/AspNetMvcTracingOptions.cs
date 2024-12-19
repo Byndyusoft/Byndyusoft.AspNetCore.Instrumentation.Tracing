@@ -8,15 +8,17 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
     public class AspNetMvcTracingOptions
     {
-        public const int DefaultValueMaxStringLength = 2000;
-
         private IFormatter _formatter;
         private int? _valueMaxStringLength;
 
         public AspNetMvcTracingOptions()
         {
-            _formatter = new NewtonsoftJsonFormatter();
-            _valueMaxStringLength = DefaultValueMaxStringLength;
+            _formatter = new SystemTextJsonFormatter();
+            _valueMaxStringLength = null;
+
+            EnrichTraceWithTaggedRequestParams = true;
+            EnrichLogsWithParams = true;
+            EnrichLogsWithHttpInfo = true;
         }
 
         public IFormatter Formatter
@@ -24,22 +26,31 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             get => _formatter;
             set => _formatter = Guard.NotNull(value, nameof(Formatter));
         }
-        
+
         public int? ValueMaxStringLength
         {
             get => _valueMaxStringLength;
             set => _valueMaxStringLength = Guard.NotNegative(value, nameof(ValueMaxStringLength));
         }
 
+        public bool EnrichTraceWithTaggedRequestParams { get; set; }
+
+        public bool EnrichLogsWithParams { get; set; }
+
+        public bool EnrichLogsWithHttpInfo { get; set; }
+
         internal ValueTask<string?> FormatAsync(object? value, CancellationToken cancellationToken = default)
         {
-            return Formatter.FormatAsync(value, this, cancellationToken);
+            return Formatter.FormatAsync(value, ValueMaxStringLength, cancellationToken);
         }
 
         internal void Configure(AspNetMvcTracingOptions options)
         {
             Formatter = options.Formatter;
             ValueMaxStringLength = options.ValueMaxStringLength;
+            EnrichTraceWithTaggedRequestParams = options.EnrichTraceWithTaggedRequestParams;
+            EnrichLogsWithParams = options.EnrichLogsWithParams;
+            EnrichLogsWithHttpInfo = options.EnrichLogsWithHttpInfo;
         }
     }
 }
