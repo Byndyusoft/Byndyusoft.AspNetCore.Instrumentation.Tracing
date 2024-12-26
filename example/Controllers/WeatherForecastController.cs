@@ -6,6 +6,7 @@ using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Models;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Controllers
 {
@@ -13,19 +14,26 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Example.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : Controller
     {
-        private readonly IService _service;
+        private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(IService service)
+        public WeatherForecastController(
+            ILogger<WeatherForecastController> logger)
         {
-            _service = service;
+            _logger = logger;
         }
 
-        [HttpGet]
-        public IActionResult Get([FromServices] IService service, CancellationToken cancellationToken)
+        [HttpGet("{id}")]
+        public IActionResult Get(
+            [FromServices] IService service,
+            [FromRoute] int id,
+            [FromQuery] string name,
+            CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var forecast = service.GetWeatherForecasts().ToArray();
+
+            _logger.LogInformation("Weather Got");
 
             return Ok(forecast);
         }

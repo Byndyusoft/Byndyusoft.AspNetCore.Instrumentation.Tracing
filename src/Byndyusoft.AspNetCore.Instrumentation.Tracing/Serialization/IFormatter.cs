@@ -5,7 +5,10 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization
 {
     public interface IFormatter
     {
-        ValueTask<string?> FormatAsync(object? value, AspNetMvcTracingOptions options,
-            CancellationToken cancellationToken);
+        ValueTask<string?> FormatAsync(
+            object? value,
+            int? valueMaxStringLength,
+            CancellationToken cancellationToken
+        );
     }
 }

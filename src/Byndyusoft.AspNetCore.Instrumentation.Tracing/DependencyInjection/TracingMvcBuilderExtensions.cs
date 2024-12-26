@@ -14,86 +14,29 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class TracingMvcBuilderExtensions
     {
         /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddTracing(this IMvcBuilder builder,
+        public static IMvcBuilder AddTracing(
+            this IMvcBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
 
-            return builder
-                .AddRequestTracing(configure)
-                .AddResponseTracing(configure);
-        }
-
-        /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
-        public static IMvcCoreBuilder AddTracing(this IMvcCoreBuilder builder,
-            Action<AspNetMvcTracingOptions>? configure = null)
-        {
-            Guard.NotNull(builder, nameof(builder));
-
-            return builder
-                .AddRequestTracing(configure)
-                .AddResponseTracing(configure);
-        }
-
-        /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddRequestTracing(this IMvcBuilder builder,
-            Action<AspNetMvcTracingOptions>? configure = null)
-        {
-            Guard.NotNull(builder, nameof(builder));
-
-            builder.Services.AddRequestTracingCore(configure);
-
+            builder.Services.AddTracingCore(configure);
             return builder;
         }
 
         /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
-        public static IMvcCoreBuilder AddRequestTracing(this IMvcCoreBuilder builder,
+        public static IMvcCoreBuilder AddTracing(
+            this IMvcCoreBuilder builder,
             Action<AspNetMvcTracingOptions>? configure = null)
         {
             Guard.NotNull(builder, nameof(builder));
 
-            builder.Services.AddRequestTracingCore(configure);
-
+            builder.Services.AddTracingCore(configure);
             return builder;
         }
 
-        /// <returns>The <see cref="IMvcBuilder" />.</returns>
-        public static IMvcBuilder AddResponseTracing(this IMvcBuilder builder,
-            Action<AspNetMvcTracingOptions>? configure = null)
-        {
-            Guard.NotNull(builder, nameof(builder));
-
-            builder.Services.AddResponseTracingCore(configure);
-
-            return builder;
-        }
-
-        /// <returns>The <see cref="IMvcCoreBuilder" />.</returns>
-        public static IMvcCoreBuilder AddResponseTracing(this IMvcCoreBuilder builder,
-            Action<AspNetMvcTracingOptions>? configure = null)
-        {
-            Guard.NotNull(builder, nameof(builder));
-
-            builder.Services.AddResponseTracingCore(configure);
-
-            return builder;
-        }
-
-        private static void AddResponseTracingCore(this IServiceCollection services,
-            Action<AspNetMvcTracingOptions>? configure)
-        {
-            if (configure != null)
-            {
-                services.Configure(configure);
-            }
-
-            services.PostConfigure<MvcOptions>(options =>
-            {
-                options.Filters.Add<AspNetMvcResponseTracingFilter>();
-            });
-        }
-
-        private static void AddRequestTracingCore(this IServiceCollection services,
+        private static void AddTracingCore(
+            this IServiceCollection services,
             Action<AspNetMvcTracingOptions>? configure)
         {
             if (configure != null)
@@ -104,15 +47,18 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton(typeof(IPostConfigureOptions<MvcOptions>), typeof(PostConfigureMvcOptions));
         }
 
-        internal sealed class PostConfigureMvcOptions(IServiceProvider serviceProvider) : IPostConfigureOptions<MvcOptions>
+        internal sealed class PostConfigureMvcOptions(IServiceProvider serviceProvider)
+            : IPostConfigureOptions<MvcOptions>
         {
             public void PostConfigure(string? name, MvcOptions options)
             {
                 var tracingOptions = serviceProvider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>().Value;
                 var apiBehaviorOptions = serviceProvider.GetRequiredService<IOptions<ApiBehaviorOptions>>().Value;
-                tracingOptions.InitialSuppressModelStateInvalidFilter = apiBehaviorOptions.SuppressModelStateInvalidFilter;
+                tracingOptions.InitialSuppressModelStateInvalidFilter =
+                    apiBehaviorOptions.SuppressModelStateInvalidFilter;
                 apiBehaviorOptions.SuppressModelStateInvalidFilter = true;
 
+                options.Filters.Add<AspNetMvcResponseTracingFilter>();
                 options.Filters.Add<AspNetMvcRequestTracingFilter>();
             }
         }
