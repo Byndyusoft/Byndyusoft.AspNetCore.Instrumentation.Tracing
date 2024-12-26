@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -34,31 +35,24 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         private readonly ILogger<AspNetMvcRequestTracingFilter> _logger;
         private readonly AspNetMvcTracingOptions _options;
         private readonly ModelStateInvalidFilter _modelStateInvalidFilter;
-        
-        private const string AcceptHeader = "http.request.header.accept";
-        private const string ContentTypeHeader = "http.request.header.content_type";
-        private const string ContentLengthHeader = "http.request.header.content_length";
 
         public AspNetMvcRequestTracingFilter(
             ILoggerFactory loggerFactory,
             IOptions<AspNetMvcTracingOptions> options,
-            IOptions<ApiBehaviorOptions> apiBehaviorOptions)
+            IServiceProvider serviceProvider)
         {
             Guard.NotNull(options, nameof(options));
-            Guard.NotNull(apiBehaviorOptions, nameof(apiBehaviorOptions));
+            Guard.NotNull(options, nameof(serviceProvider));
             Guard.NotNull(loggerFactory, nameof(loggerFactory));
 
             _logger = loggerFactory.CreateLogger<AspNetMvcRequestTracingFilter>();
             _options = options.Value;
-            _modelStateInvalidFilter = new ModelStateInvalidFilter(
-                apiBehaviorOptions.Value,
-                loggerFactory.CreateLogger(typeof(ModelStateInvalidFilter)));
+            _modelStateInvalidFilter = CreateModelStateFilter(serviceProvider);
         }
 
         public Task OnActionExecutionAsync(
             ActionExecutingContext context,
-            ActionExecutionDelegate next
-        )
+            ActionExecutionDelegate next)
         {
             return OnActionExecutionAsync(context, next, context.HttpContext.RequestAborted);
         }
@@ -70,8 +64,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
         {
             var activity = Activity.Current;
             var requestContext = BuildRequestContext(context);
+
+            await EnrichTraceWithTaggedRequestParams(activity, requestContext, cancellationToken);
+            await EnrichTraceWithRequestEvent(activity, requestContext, cancellationToken);
+
             EnrichLogsWithHttpInfo(requestContext);
-            EnrichWithParams(activity, requestContext.Parameters);
+            EnrichLogsWithParams(requestContext.Parameters);
             await LogRequestInLogAsync(requestContext, cancellationToken);
 
             if (_options.InitialSuppressModelStateInvalidFilter == false)
@@ -85,6 +83,39 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             }
         }
 
+        private async Task EnrichTraceWithTaggedRequestParams(
+            Activity? activity,
+            RequestContext requestContext,
+            CancellationToken cancellationToken)
+        {
+            if (activity is null || _options.EnrichTraceWithTaggedRequestParams == false)
+                return;
+
+            await foreach (var item in requestContext.EnumerateEventItemsAsync(_options, cancellationToken))
+            {
+                ActivityTagEnricher.Enrich(activity, item.Name, item.Value);
+            }
+        }
+
+        private async Task EnrichTraceWithRequestEvent(
+            Activity? activity,
+            RequestContext requestContext,
+            CancellationToken cancellationToken)
+        {
+            if (activity is null || _options.EnrichTraceWithRequestEvent == false)
+                return;
+
+            var tags = new ActivityTagsCollection();
+
+            await foreach (var item in requestContext.EnumerateEventItemsAsync(_options, cancellationToken))
+            {
+                tags.Add(item.Name, item.Value);
+            }
+
+            var @event = new ActivityEvent("Action executing", tags: tags);
+            activity.AddEvent(@event);
+        }
+
         private async Task LogRequestInLogAsync(
             RequestContext context,
             CancellationToken cancellationToken
@@ -96,34 +127,25 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             _logger.LogStructuredActivityEvent("Action executing", eventItems);
         }
 
-        private void EnrichLogsWithHttpInfo(
-            RequestContext context)
+        private void EnrichLogsWithHttpInfo(RequestContext context)
         {
             if (_options.EnrichLogsWithHttpInfo == false)
                 return;
 
-            LogPropertyDataAccessor.AddTelemetryItem("http.request.url", context.Url);
+            LogPropertyDataAccessor.AddTelemetryItem(HttpRequestKeys.Url, context.Url);
         }
 
-        private void EnrichWithParams(
-            Activity? activity,
-            RequestContextParameter[] requestContextParameters
-        )
+        private void EnrichLogsWithParams(RequestContextParameter[] parameters)
         {
-            if (_options.EnrichLogsWithParams == false
-                && activity is null
-                && _options.EnrichTraceWithTaggedRequestParams == false)
+            if (_options.EnrichLogsWithParams == false)
                 return;
 
-            var telemetryItems = requestContextParameters
-                .SelectMany(i => ObjectTelemetryItemsCollector.Collect(i.Name, i.Value, "http.request.params."))
+            var telemetryItems = parameters
+                .SelectMany(i => ObjectTelemetryItemsCollector.Collect(i.Name, i.Value, HttpRequestKeys.ParamsPrefix))
                 .ToArray();
 
             if (_options.EnrichLogsWithParams)
                 LogPropertyDataAccessor.AddTelemetryItems(telemetryItems);
-
-            if (activity is not null && _options.EnrichTraceWithTaggedRequestParams)
-                ActivityTagEnricher.Enrich(activity, telemetryItems);
         }
 
         private static RequestContext BuildRequestContext(ActionExecutingContext context)
@@ -190,30 +212,39 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
                 AspNetMvcTracingOptions options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
             {
-                yield return new StructuredActivityEventItem(AcceptHeader, AcceptFormats);
-                yield return new StructuredActivityEventItem(ContentTypeHeader, ContentType);
-                yield return new StructuredActivityEventItem(ContentLengthHeader, ContentLength);
+                yield return new StructuredActivityEventItem(HttpRequestKeys.Headers.Accept, AcceptFormats);
+                yield return new StructuredActivityEventItem(HttpRequestKeys.Headers.ContentType, ContentType);
+                yield return new StructuredActivityEventItem(HttpRequestKeys.Headers.ContentLength, ContentLength);
 
                 foreach (var parameter in Parameters)
                 {
-                    var json = await options.FormatAsync(parameter.Value, cancellationToken)
-                        .ConfigureAwait(false);
-                    yield return new StructuredActivityEventItem($"http.request.params.{parameter.Name}", json);
+                    var json = await parameter.GetJson(options, cancellationToken);
+                    yield return new StructuredActivityEventItem($"{HttpRequestKeys.ParamsPrefix}.{parameter.Value}", json);
                 }
             }
         }
 
-        private class RequestContextParameter
+        private class RequestContextParameter(string name, object? value)
         {
-            public RequestContextParameter(string name, object? value)
+            private string? _json;
+
+            public string Name { get; } = name;
+
+            public object? Value { get; } = value;
+
+            public async Task<string?> GetJson(AspNetMvcTracingOptions tracingOptions, CancellationToken cancellationToken)
             {
-                Name = name;
-                Value = value;
+                return _json ??= await tracingOptions.FormatAsync(Value, cancellationToken)
+                    .ConfigureAwait(false);
             }
+        }
 
-            public string Name { get; }
+        private static ModelStateInvalidFilter CreateModelStateFilter(IServiceProvider serviceProvider)
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<ApiBehaviorOptions>>();
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 
-            public object? Value { get; }
+            return new ModelStateInvalidFilter(options.Value, loggerFactory.CreateLogger(typeof(ModelStateInvalidFilter)));
         }
 
         public int Order => _modelStateInvalidFilter.Order - 1;
