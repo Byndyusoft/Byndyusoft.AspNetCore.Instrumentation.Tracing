@@ -4,6 +4,7 @@ using System;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -43,11 +44,23 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure(configure);
             }
 
-            services.PostConfigure<MvcOptions>(options =>
+            services.AddSingleton(typeof(IPostConfigureOptions<MvcOptions>), typeof(PostConfigureMvcOptions));
+        }
+
+        internal sealed class PostConfigureMvcOptions(IServiceProvider serviceProvider)
+            : IPostConfigureOptions<MvcOptions>
+        {
+            public void PostConfigure(string? name, MvcOptions options)
             {
+                var tracingOptions = serviceProvider.GetRequiredService<IOptions<AspNetMvcTracingOptions>>().Value;
+                var apiBehaviorOptions = serviceProvider.GetRequiredService<IOptions<ApiBehaviorOptions>>().Value;
+                tracingOptions.InitialSuppressModelStateInvalidFilter =
+                    apiBehaviorOptions.SuppressModelStateInvalidFilter;
+                apiBehaviorOptions.SuppressModelStateInvalidFilter = true;
+
                 options.Filters.Add<AspNetMvcResponseTracingFilter>();
                 options.Filters.Add<AspNetMvcRequestTracingFilter>();
-            });
+            }
         }
     }
 }

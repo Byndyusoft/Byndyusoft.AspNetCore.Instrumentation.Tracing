@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Internal;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization;
 using Byndyusoft.AspNetCore.Instrumentation.Tracing.Serialization.Json;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 {
@@ -16,9 +17,9 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             _formatter = new SystemTextJsonFormatter();
             _valueMaxStringLength = null;
 
-            EnrichTraceWithTaggedRequestParams = true;
-            EnrichLogsWithParams = true;
-            EnrichLogsWithHttpInfo = true;
+            EnrichTraceWithTaggedRequestParams = false;
+            EnrichLogsWithParams = false;
+            EnrichLogsWithHttpInfo = false;
         }
 
         public IFormatter Formatter
@@ -35,6 +36,12 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
 
         public bool EnrichTraceWithTaggedRequestParams { get; set; }
 
+        public bool EnrichTraceWithRequestEvent { get; set; }
+
+        public bool EnrichTraceWithTaggedResponseParams { get; set; }
+
+        public bool EnrichTraceWithResponseEvent { get; set; }
+
         public bool EnrichLogsWithParams { get; set; }
 
         public bool EnrichLogsWithHttpInfo { get; set; }
@@ -49,8 +56,14 @@ namespace Byndyusoft.AspNetCore.Instrumentation.Tracing
             Formatter = options.Formatter;
             ValueMaxStringLength = options.ValueMaxStringLength;
             EnrichTraceWithTaggedRequestParams = options.EnrichTraceWithTaggedRequestParams;
-            EnrichLogsWithParams = options.EnrichLogsWithParams;
             EnrichLogsWithHttpInfo = options.EnrichLogsWithHttpInfo;
+            EnrichLogsWithParams = options.EnrichLogsWithParams;
+            
         }
+
+        /// <summary>
+        ///     Значение, которое было задано в <see cref="ApiBehaviorOptions.SuppressModelStateInvalidFilter "/>
+        /// </summary>
+        internal bool InitialSuppressModelStateInvalidFilter { get; set; }
     }
 }
